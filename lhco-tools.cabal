@@ -1,0 +1,21 @@
+name:                lhco-tools
+version:             0.0.0.0
+synopsis:            Tools for the LHCO analyses using Haskell
+description:         This package provides simple parsers and functions for manipulating files in the LHC Olympics Form (LHCO).
+homepage:            https://github.com/cbpark/lhco-tools
+license:             BSD3
+license-file:        LICENSE
+author:              Chan Beom Park
+maintainer:          chanbeom.park@cern.ch
+copyright:           (c) 2014 Chan Beom Park
+category:            Data, Physics
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     HEP.Data.LHCO
+  -- other-modules:
+  build-depends:       base >=4.6
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall -O2 -funbox-strict-fields
