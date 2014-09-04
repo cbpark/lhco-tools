@@ -5,13 +5,13 @@ module HEP.Data.LHCO where
 import           Control.Lens
 import           Data.IntMap  (IntMap)
 
-data Header = Header { eveNum      :: Int -- ^ event number.
+data Header = Header { numEve      :: Int -- ^ event number.
                      , triggerWord :: Int -- ^ triggering information.
                      } deriving Show
 
-data Object = Object { -- | counter that labels the object.
-                       _counter :: Int
-                       -- | type of object.
+type ObjectLine = (Int, Object)
+
+data Object = Object { -- | type of object.
                        --
                        --     * 0 = photon
                        --     * 1 = electron
@@ -19,7 +19,7 @@ data Object = Object { -- | counter that labels the object.
                        --     * 3 = hadronically-decaying tau
                        --     * 4 = jet
                        --     * 6 = missing transverse energy
-                     , _typ     :: Int
+                       _typ     :: Int
                        -- | pseudorapidity.
                      , _eta     :: Double
                        -- | azimuthal angle.
