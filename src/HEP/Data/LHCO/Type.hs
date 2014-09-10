@@ -1,9 +1,6 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module HEP.Data.LHCO.Type where
 
-import           Control.Lens.TH
-import           Data.IntMap  (IntMap)
+import           Data.IntMap (IntMap)
 
 data Header = Header { numEve      :: Int -- ^ event number.
                      , triggerWord :: Int -- ^ triggering information.
@@ -22,32 +19,30 @@ data Object = Object { -- | type of object.
                        --     * 4 = jet
                        --
                        --     * 6 = missing transverse energy
-                       _typ   :: Int
+                       typ   :: Int
                        -- | pseudorapidity.
-                     , _eta   :: Double
+                     , eta   :: Double
                        -- | azimuthal angle.
-                     , _phi   :: Double
+                     , phi   :: Double
                        -- | transverse momentum.
-                     , _pt    :: Double
+                     , pt    :: Double
                        -- | invariant mass of the object.
                        --
                        -- For a jet, it is constructed from all energy and
                        -- momentum that are contained within it.
-                     , _jmass :: Double
+                     , jmass :: Double
                        -- | number of tracks associated with the object.
                        --
                        -- In the case of a lepton, the number is multiplied by
                        -- the charge of the lepton.
-                     , _ntrk  :: Double
+                     , ntrk  :: Double
                        -- | either 1 or 2 for a jet that has been tagged as
                        -- containing a b-quark.
-                     , _btag  :: Double
+                     , btag  :: Double
                        -- | ratio of the hadronic /vs/ electromagnetic energy
                        -- deposited in the calorimeter cells.
-                     , _hadem :: Double
+                     , hadem :: Double
                      } deriving (Eq, Show)
 
-makeLenses ''Object
-
 type Objects = IntMap Object
-type Event = (Header, Objects)
+type RawEvent = (Header, Objects)

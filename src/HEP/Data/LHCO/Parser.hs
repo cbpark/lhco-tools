@@ -41,16 +41,16 @@ object = do skipSpace
                       skipSpace
                       hadem' <- double
                       skipTillEnd
-                      return (counter', Object { _typ   = typ'
-                                               , _eta   = eta'
-                                               , _phi   = phi'
-                                               , _pt    = pt'
-                                               , _jmass = jmass'
-                                               , _ntrk  = ntrk'
-                                               , _btag  = btag'
-                                               , _hadem = hadem' })
+                      return (counter', Object { typ   = typ'
+                                               , eta   = eta'
+                                               , phi   = phi'
+                                               , pt    = pt'
+                                               , jmass = jmass'
+                                               , ntrk  = ntrk'
+                                               , btag  = btag'
+                                               , hadem = hadem' })
 
-lhcoEvent :: Parser (Header, Objects)
+lhcoEvent :: Parser RawEvent
 lhcoEvent = do comment
                skipSpace
                char '0'
@@ -59,5 +59,5 @@ lhcoEvent = do comment
                return (hd, fromList objs)
   where comment = many' $ skipSpace >> char '#' >> skipTillEnd >> endOfLine
 
-lhcoEvents :: Parser [(Header, Objects)]
+lhcoEvents :: Parser [RawEvent]
 lhcoEvents =  many1' lhcoEvent
