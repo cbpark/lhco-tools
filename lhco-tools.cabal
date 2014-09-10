@@ -15,6 +15,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     HEP.Data.LHCO
                        HEP.Data.LHCO.Parser
+                       HEP.Data.LHCO.Type
   build-depends:       base >=4.6,
                        attoparsec >=0.12,
                        containers >=0.5,
@@ -23,12 +24,37 @@ library
   default-language:    Haskell2010
   ghc-options:         -Wall -O2 -funbox-strict-fields -fno-warn-unused-do-bind
 
-executable testlhcoparse
-  main-is:             parsetest.hs
-  build-depends:       base >=4.6,
-                       attoparsec >=0.12,
-                       text >=1.1,
-                       lhco-tools
+executable lhco_parse_test
+  main-is:             testparse.hs
+  build-depends:       base >=4.6
+                     , attoparsec >=0.12
+                     , bytestring >=0.10
+                     , lhco-tools
   hs-source-dirs:      test
   default-language:    Haskell2010
-  ghc-options:         -Wall -O2 -funbox-strict-fields
+  ghc-options:         -Wall -O2 -threaded -funbox-strict-fields
+
+executable lhco_conduitparse_test
+  main-is:             conduitparse.hs
+  build-depends:       base >=4.6
+                     , conduit >=1.2
+                     , conduit-extra >=1.1
+                     , resourcet >=1.1
+                     , transformers >=0.3 && <0.5
+                     , lhco-tools
+  hs-source-dirs:      test
+  default-language:    Haskell2010
+  ghc-options:         -Wall -O2 -threaded -funbox-strict-fields
+
+executable lhco_pipesparse_test
+  main-is:             pipesparse.hs
+  build-depends:       base >=4.6
+                     , bytestring >=0.10
+                     , pipes >=4.1
+                     , pipes-attoparsec >=0.5
+                     , pipes-bytestring >=2.1
+                     , transformers >=0.3 && <0.5
+                     , lhco-tools
+  hs-source-dirs:      test
+  default-language:    Haskell2010
+  ghc-options:         -Wall -O2 -threaded -funbox-strict-fields

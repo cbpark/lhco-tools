@@ -1,18 +1,15 @@
-module HEP.Data.LHCO.Parser (parseSingleEvent, parseEvents) where
+module HEP.Data.LHCO.Parser (lhcoEvent, lhcoEvents) where
 
-import           Control.Applicative  ((<*))
-import           Control.Monad        (mzero)
-import           Data.Attoparsec.Text
-import           Data.IntMap          (fromList)
+import           Control.Applicative              ((<*))
+import           Control.Monad                    (mzero)
+import           Data.Attoparsec.ByteString       (skipWhile)
+import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
+import           Data.IntMap                      (fromList)
 
-import           HEP.Data.LHCO
+import           HEP.Data.LHCO.Type
 
 skipTillEnd :: Parser ()
 skipTillEnd = skipWhile (not . isEndOfLine)
-
-comment :: Parser [()]
-comment = many' $
-          skipSpace >> char '#' >> skipTillEnd >> endOfLine
 
 header :: Parser Header
 header = do skipSpace
@@ -53,12 +50,14 @@ object = do skipSpace
                                                , _btag  = btag'
                                                , _hadem = hadem' })
 
-parseSingleEvent :: Parser (Header, Objects)
-parseSingleEvent = do skipSpace
-                      char '0'
-                      hd <- header <* endOfLine
-                      objs <- many1' $ object <* endOfLine
-                      return (hd, fromList objs)
+lhcoEvent :: Parser (Header, Objects)
+lhcoEvent = do comment
+               skipSpace
+               char '0'
+               hd <- header <* endOfLine
+               objs <- many1' $ object <* endOfLine
+               return (hd, fromList objs)
+  where comment = many' $ skipSpace >> char '#' >> skipTillEnd >> endOfLine
 
-parseEvents :: Parser [(Header, Objects)]
-parseEvents = comment >> many' parseSingleEvent
+lhcoEvents :: Parser [(Header, Objects)]
+lhcoEvents =  many1' lhcoEvent
