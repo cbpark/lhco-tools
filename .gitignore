@@ -4,5 +4,8 @@ dist
 .cabal-sandbox
 cabal.sandbox.config
 TAGS
+.#*
+.*.swp
 *.lhco
 *.log
+*.old
