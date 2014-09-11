@@ -4,8 +4,11 @@
 
 module HEP.Data.LHCO.Type where
 
-import Data.List (sortBy)
-import Data.Function (on)
+import           Data.Function            (on)
+import           Data.List                (sortBy)
+
+import           HEP.Vector.LorentzVector (LorentzVector (..),
+                                           lorentzVectorEtaPhiPtM)
 
 data Header = Header { numEve      :: Int -- ^ event number.
                      , triggerWord :: Int -- ^ triggering information.
@@ -140,27 +143,41 @@ data Event = Event { neve      :: Int
                    } deriving Show
 
 class TrackObj a where
-  ptmag :: a -> Double
+  ptMag :: a -> Double
   ptCompare :: TrackObj a => a -> a -> Ordering
-  ptCompare = (flip compare) `on` ptmag
+  ptCompare = (flip compare) `on` ptMag
+
+  fourMomentum :: a -> LorentzVector Double
 
 instance TrackObj (PhyObj Photon) where
-  ptmag p = let (_, _, pt') = photonTrack p in pt'
+  ptMag p = let (_, _, pt') = photonTrack p in pt'
+  fourMomentum p = let (eta', phi', pt') = photonTrack p
+                   in lorentzVectorEtaPhiPtM (eta', phi', pt', 0)
 
 instance TrackObj (PhyObj Electron) where
-  ptmag p = let (_, _, pt') = electronTrack p in pt'
+  ptMag p = let (_, _, pt') = electronTrack p in pt'
+  fourMomentum p = let (eta', phi', pt') = electronTrack p
+                   in lorentzVectorEtaPhiPtM (eta', phi', pt', 0)
 
 instance TrackObj (PhyObj Muon) where
-  ptmag p = let (_, _, pt') = muonTrack p in pt'
+  ptMag p = let (_, _, pt') = muonTrack p in pt'
+  fourMomentum p = let (eta', phi', pt') = muonTrack p
+                   in lorentzVectorEtaPhiPtM (eta', phi', pt', 0)
 
 instance TrackObj (PhyObj Tau) where
-  ptmag p = let (_, _, pt') = tauTrack p in pt'
+  ptMag p = let (_, _, pt') = tauTrack p in pt'
+  fourMomentum p = let (eta', phi', pt') = tauTrack p
+                   in lorentzVectorEtaPhiPtM (eta', phi', pt', 0)
 
 instance TrackObj (PhyObj Jet) where
-  ptmag p = let (_, _, pt') = jetTrack p in pt'
+  ptMag p = let (_, _, pt') = jetTrack p in pt'
+  fourMomentum p = let (eta', phi', pt') = jetTrack p
+                   in lorentzVectorEtaPhiPtM (eta', phi', pt', jetMass p)
 
 instance TrackObj (PhyObj Bjet) where
-  ptmag p = let (_, _, pt') = bjetTrack p in pt'
+  ptMag p = let (_, _, pt') = bjetTrack p in pt'
+  fourMomentum p = let (eta', phi', pt') = bjetTrack p
+                   in lorentzVectorEtaPhiPtM (eta', phi', pt', bjetMass p)
 
 ptOrdering :: TrackObj a => [a] -> [a]
 ptOrdering = sortBy ptCompare
