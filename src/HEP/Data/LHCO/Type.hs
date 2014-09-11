@@ -1,11 +1,8 @@
 {-# LANGUAGE EmptyDataDecls    #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs             #-}
-{-# LANGUAGE RecordWildCards   #-}
 
 module HEP.Data.LHCO.Type where
-
-import           Data.List (foldl')
 
 data Header = Header { numEve      :: Int -- ^ event number.
                      , triggerWord :: Int -- ^ triggering information.
@@ -129,29 +126,6 @@ showJetMassNtrk m n = "jmass = " ++ show m ++ ", ntrk = " ++ show n
 data EachObj where
   EachObj :: PhyObj t -> EachObj
 
-makeEachObj :: RawObject -> EachObj
-makeEachObj RawObject { .. } =
-  let ntrkToCharge n = if n > 0 then CPlus else CMinus
-      ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
-  in case typ of
-      0 -> EachObj $ ObjPhoton { photonTrack = (eta, phi, pt) }
-      1 -> EachObj $ ObjElectron { electronTrack  = (eta, phi, pt)
-                                 , electronCharge = ntrkToCharge ntrk }
-      2 -> EachObj $ ObjMuon  { muonTrack  = (eta, phi, pt)
-                              , muonCharge = ntrkToCharge ntrk }
-      3 -> EachObj $ ObjTau { tauTrack  = (eta, phi, pt)
-                            , tauCharge = ntrkToCharge ntrk
-                            , tauProng  = ntrkToProng ntrk }
-      4 -> if btag > 0.0
-           then EachObj $ ObjBjet { bjetTrack    = (eta, phi, pt)
-                                  , bjetMass     = jmass
-                                  , bjetNumTrack = round ntrk }
-           else EachObj $ ObjJet { jetTrack    = (eta, phi, pt)
-                                 , jetMass     = jmass
-                                 , jetNumTrack = round ntrk }
-      6 -> EachObj $ ObjMet { metTrack = (phi, pt) }
-      _ -> EachObj $ ObjUnknown
-
 type ObjType = String
 
 data Event = Event { eventNum  :: Int
@@ -163,16 +137,3 @@ data Event = Event { eventNum  :: Int
                    , bjets     :: [PhyObj Bjet]
                    , met       :: PhyObj Met
                    } deriving Show
-
-makeEvent :: Int -> [EachObj] -> Event
-makeEvent n = foldl' addObj (Event n [] [] [] [] [] [] (ObjMet (0, 0)))
-
-addObj :: Event -> EachObj -> Event
-addObj ev (EachObj p@(ObjPhoton _))     = ev { photons   = p : (photons ev) }
-addObj ev (EachObj p@(ObjElectron _ _)) = ev { electrons = p : (electrons ev) }
-addObj ev (EachObj p@(ObjMuon _ _))     = ev { muons     = p : (muons ev) }
-addObj ev (EachObj p@(ObjTau _ _ _))    = ev { taus      = p : (taus ev) }
-addObj ev (EachObj p@(ObjJet _ _ _))    = ev { jets      = p : (jets ev) }
-addObj ev (EachObj p@(ObjBjet _ _ _))   = ev { bjets     = p : (bjets ev) }
-addObj ev (EachObj p@(ObjMet _))        = ev { met       = p }
-addObj ev  (EachObj ObjUnknown)         = ev
