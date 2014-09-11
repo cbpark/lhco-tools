@@ -108,8 +108,7 @@ ntrkToCharge :: Double -> Charge
 ntrkToCharge n = if n > 0 then CPlus else CMinus
 
 ntrkToProng :: Double -> TauProng
-ntrkToProng n = let (n', _) = properFraction n
-                in if n' == (1 :: Int) then OneProng else ThreeProng
+ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
 
 data Event = Event { eventNum  :: Int
                    , photons   :: IntMap (PhyObj Photon)

@@ -8,10 +8,10 @@ import           System.Environment              (getArgs)
 import           System.Exit                     (exitFailure)
 import           System.IO                       (IOMode (..), withFile)
 
-import           HEP.Data.LHCO                   (lhcoEvent)
+import           HEP.Data.LHCO
 
 parseAndPrint :: ByteString -> IO ()
-parseAndPrint str = case parse lhcoEvent str of
+parseAndPrint str = case parse rawLHCOEvent str of
                      Fail r _ _         -> C.putStrLn r
                      Done unused result -> do print result
                                               parseAndPrint unused

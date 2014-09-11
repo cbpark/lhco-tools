@@ -22,7 +22,7 @@ main = do
   let infile = head args
   putStrLn $ "-- Parsing " ++ show infile ++ "."
   runResourceT $
-    CB.sourceFile infile $$ conduitParser lhcoEvent =$
+    CB.sourceFile infile $$ conduitParser rawLHCOEvent =$
     CL.mapM_ (liftIO . print . snd)
 
   putStrLn "-- Done parsing."

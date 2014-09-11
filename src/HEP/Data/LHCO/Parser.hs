@@ -1,4 +1,4 @@
-module HEP.Data.LHCO.Parser (lhcoEvent, lhcoEvents) where
+module HEP.Data.LHCO.Parser (rawLHCOEvent) where
 
 import           Control.Applicative              ((<*))
 import           Control.Monad                    (mzero)
@@ -52,14 +52,11 @@ object = do skipSpace
 
 type RawEvent = (Header, IntMap RawObject)
 
-lhcoEvent :: Parser RawEvent
-lhcoEvent = do comment
-               skipSpace
-               char '0'
-               hd <- header <* endOfLine
-               objs <- many1' $ object <* endOfLine
-               return (hd, fromList objs)
+rawLHCOEvent :: Parser RawEvent
+rawLHCOEvent = do comment
+                  skipSpace
+                  char '0'
+                  hd <- header <* endOfLine
+                  objs <- many1' $ object <* endOfLine
+                  return (hd, fromList objs)
   where comment = many' $ skipSpace >> char '#' >> skipTillEnd >> endOfLine
-
-lhcoEvents :: Parser [RawEvent]
-lhcoEvents =  many1' lhcoEvent

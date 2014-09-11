@@ -15,7 +15,7 @@ import           HEP.Data.LHCO
 
 parseAndPrint :: Producer ByteString IO r -> IO ()
 parseAndPrint input = runEffect $ do
-  (result, unused) <- lift $ runStateT (parse lhcoEvent) input
+  (result, unused) <- lift $ runStateT (parse rawLHCOEvent) input
   case result of
    Nothing -> liftIO $ putStrLn "-- Done parsing."
    Just x  -> case x of Left _    -> return ()
