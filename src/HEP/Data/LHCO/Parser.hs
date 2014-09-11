@@ -7,7 +7,7 @@ import           Control.Applicative              ((<*))
 import           Control.Monad                    (mzero)
 import           Data.Attoparsec.ByteString       (skipWhile)
 import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
-import           Data.List                        (foldl')
+import           Data.List                        (foldl', sortBy)
 
 import           HEP.Data.LHCO.Type
 
@@ -108,3 +108,5 @@ sortEvent ev = ev { photons   = ptOrdering (photons ev)
                   , taus      = ptOrdering (taus ev)
                   , jets      = ptOrdering (jets ev)
                   , bjets     = ptOrdering (bjets ev) }
+  where ptOrdering :: TrackObj a => [a] -> [a]
+        ptOrdering = sortBy ptCompare
