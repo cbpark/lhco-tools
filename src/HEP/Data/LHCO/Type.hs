@@ -4,6 +4,9 @@
 
 module HEP.Data.LHCO.Type where
 
+import Data.List (sortBy)
+import Data.Function (on)
+
 data Header = Header { numEve      :: Int -- ^ event number.
                      , triggerWord :: Int -- ^ triggering information.
                      } deriving Show
@@ -126,9 +129,7 @@ showJetMassNtrk m n = "jmass = " ++ show m ++ ", ntrk = " ++ show n
 data EachObj where
   EachObj :: PhyObj t -> EachObj
 
-type ObjType = String
-
-data Event = Event { eventNum  :: Int
+data Event = Event { neve      :: Int
                    , photons   :: [PhyObj Photon]
                    , electrons :: [PhyObj Electron]
                    , muons     :: [PhyObj Muon]
@@ -137,3 +138,29 @@ data Event = Event { eventNum  :: Int
                    , bjets     :: [PhyObj Bjet]
                    , met       :: PhyObj Met
                    } deriving Show
+
+class TrackObj a where
+  ptmag :: a -> Double
+  ptCompare :: TrackObj a => a -> a -> Ordering
+  ptCompare = (flip compare) `on` ptmag
+
+instance TrackObj (PhyObj Photon) where
+  ptmag p = let (_, _, pt') = photonTrack p in pt'
+
+instance TrackObj (PhyObj Electron) where
+  ptmag p = let (_, _, pt') = electronTrack p in pt'
+
+instance TrackObj (PhyObj Muon) where
+  ptmag p = let (_, _, pt') = muonTrack p in pt'
+
+instance TrackObj (PhyObj Tau) where
+  ptmag p = let (_, _, pt') = tauTrack p in pt'
+
+instance TrackObj (PhyObj Jet) where
+  ptmag p = let (_, _, pt') = jetTrack p in pt'
+
+instance TrackObj (PhyObj Bjet) where
+  ptmag p = let (_, _, pt') = bjetTrack p in pt'
+
+ptOrdering :: TrackObj a => [a] -> [a]
+ptOrdering = sortBy ptCompare

@@ -65,30 +65,29 @@ rawLHCOEvent = do comment
 lhcoEvent :: Parser Event
 lhcoEvent = do (hd, rawObjs) <- rawLHCOEvent
                let phyObjs = map makeEachObj rawObjs
-               return $ makeEvent (numEve hd) phyObjs
+               return $ (sortEvent . makeEvent (numEve hd)) phyObjs
 
 makeEachObj :: RawObject -> EachObj
 makeEachObj RawObject { .. } =
   let ntrkToCharge n = if n > 0 then CPlus else CMinus
       ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
-  in case typ of
-      0 -> EachObj ObjPhoton { photonTrack = (eta, phi, pt) }
-      1 -> EachObj ObjElectron { electronTrack  = (eta, phi, pt)
-                               , electronCharge = ntrkToCharge ntrk }
-      2 -> EachObj ObjMuon  { muonTrack  = (eta, phi, pt)
-                            , muonCharge = ntrkToCharge ntrk }
-      3 -> EachObj ObjTau { tauTrack  = (eta, phi, pt)
-                          , tauCharge = ntrkToCharge ntrk
-                          , tauProng  = ntrkToProng ntrk }
-      4 -> if btag > 0
-           then EachObj ObjBjet { bjetTrack    = (eta, phi, pt)
-                                , bjetMass     = jmass
-                                , bjetNumTrack = round ntrk }
-           else EachObj ObjJet { jetTrack    = (eta, phi, pt)
-                               , jetMass     = jmass
-                               , jetNumTrack = round ntrk }
-      6 -> EachObj ObjMet { metTrack = (phi, pt) }
-      _ -> EachObj ObjUnknown
+  in case typ of 0 -> EachObj ObjPhoton { photonTrack = (eta, phi, pt) }
+                 1 -> EachObj ObjElectron { electronTrack  = (eta, phi, pt)
+                                          , electronCharge = ntrkToCharge ntrk }
+                 2 -> EachObj ObjMuon  { muonTrack  = (eta, phi, pt)
+                                       , muonCharge = ntrkToCharge ntrk }
+                 3 -> EachObj ObjTau { tauTrack  = (eta, phi, pt)
+                                     , tauCharge = ntrkToCharge ntrk
+                                     , tauProng  = ntrkToProng ntrk }
+                 4 -> if btag > 0
+                      then EachObj ObjBjet { bjetTrack    = (eta, phi, pt)
+                                           , bjetMass     = jmass
+                                           , bjetNumTrack = round ntrk }
+                      else EachObj ObjJet { jetTrack    = (eta, phi, pt)
+                                          , jetMass     = jmass
+                                          , jetNumTrack = round ntrk }
+                 6 -> EachObj ObjMet { metTrack = (phi, pt) }
+                 _ -> EachObj ObjUnknown
 
 makeEvent :: Int -> [EachObj] -> Event
 makeEvent n = foldl' addObj (Event n [] [] [] [] [] [] (ObjMet (0, 0)))
@@ -101,3 +100,11 @@ makeEvent n = foldl' addObj (Event n [] [] [] [] [] [] (ObjMet (0, 0)))
         addObj ev (EachObj p@(ObjBjet {}))     = ev { bjets     = p : bjets ev }
         addObj ev (EachObj p@(ObjMet {}))      = ev { met       = p }
         addObj ev (EachObj ObjUnknown)         = ev
+
+sortEvent :: Event -> Event
+sortEvent ev = ev { photons   = ptOrdering (photons ev)
+                  , electrons = ptOrdering (electrons ev)
+                  , muons     = ptOrdering (muons ev)
+                  , taus      = ptOrdering (taus ev)
+                  , jets      = ptOrdering (jets ev)
+                  , bjets     = ptOrdering (bjets ev) }
