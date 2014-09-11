@@ -2,7 +2,18 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs             #-}
 
-module HEP.Data.LHCO.Type where
+module HEP.Data.LHCO.Type
+       (
+         Header (..)
+       , RawObject (..)
+       , PhyObj (..)
+       , EachObj (..)
+       , Charge (..)
+       , TauProng (..)
+       , Event (..)
+
+       , Trackable (..)
+       ) where
 
 import           Data.Function            (on)
 
@@ -140,39 +151,39 @@ data Event = Event { neve      :: Int
                    , met       :: PhyObj Met
                    } deriving Show
 
-class TrackObj a where
+class Trackable a where
   ptMag :: a -> Double
-  ptCompare :: TrackObj a => a -> a -> Ordering
+  ptCompare :: Trackable a => a -> a -> Ordering
   ptCompare = (flip compare) `on` ptMag
 
   fourMomentum :: a -> LorentzVector Double
 
-instance TrackObj (PhyObj Photon) where
+instance Trackable (PhyObj Photon) where
   ptMag p = let (_, _, pt') = photonTrack p in pt'
   fourMomentum p = let (eta', phi', pt') = photonTrack p
                    in setEtaPhiPtM eta' phi' pt' 0
 
-instance TrackObj (PhyObj Electron) where
+instance Trackable (PhyObj Electron) where
   ptMag p = let (_, _, pt') = electronTrack p in pt'
   fourMomentum p = let (eta', phi', pt') = electronTrack p
                    in setEtaPhiPtM eta' phi' pt' 0
 
-instance TrackObj (PhyObj Muon) where
+instance Trackable (PhyObj Muon) where
   ptMag p = let (_, _, pt') = muonTrack p in pt'
   fourMomentum p = let (eta', phi', pt') = muonTrack p
                    in setEtaPhiPtM eta' phi' pt' 0
 
-instance TrackObj (PhyObj Tau) where
+instance Trackable (PhyObj Tau) where
   ptMag p = let (_, _, pt') = tauTrack p in pt'
   fourMomentum p = let (eta', phi', pt') = tauTrack p
                    in setEtaPhiPtM eta' phi' pt' 0
 
-instance TrackObj (PhyObj Jet) where
+instance Trackable (PhyObj Jet) where
   ptMag p = let (_, _, pt') = jetTrack p in pt'
   fourMomentum p = let (eta', phi', pt') = jetTrack p
                    in setEtaPhiPtM eta' phi' pt' (jetMass p)
 
-instance TrackObj (PhyObj Bjet) where
+instance Trackable (PhyObj Bjet) where
   ptMag p = let (_, _, pt') = bjetTrack p in pt'
   fourMomentum p = let (eta', phi', pt') = bjetTrack p
                    in setEtaPhiPtM eta' phi' pt' (bjetMass p)

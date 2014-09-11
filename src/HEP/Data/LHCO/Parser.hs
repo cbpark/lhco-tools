@@ -108,5 +108,5 @@ sortEvent ev = ev { photons   = ptOrdering (photons ev)
                   , taus      = ptOrdering (taus ev)
                   , jets      = ptOrdering (jets ev)
                   , bjets     = ptOrdering (bjets ev) }
-  where ptOrdering :: TrackObj a => [a] -> [a]
+  where ptOrdering :: Trackable a => [a] -> [a]
         ptOrdering = sortBy ptCompare
