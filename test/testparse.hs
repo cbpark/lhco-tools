@@ -11,7 +11,7 @@ import           System.IO                       (IOMode (..), withFile)
 import           HEP.Data.LHCO
 
 parseAndPrint :: ByteString -> IO ()
-parseAndPrint str = case parse rawLHCOEvent str of
+parseAndPrint str = case parse lhcoEvent str of
                      Fail r _ _         -> C.putStrLn r
                      Done unused result -> do print result
                                               parseAndPrint unused
@@ -26,7 +26,6 @@ main = do
   let infile = head args
   putStrLn $ "-- Reading " ++ show infile ++ "."
   withFile infile ReadMode $ \inh -> do evstr <- C.hGetContents inh
-                                        -- print $ parseOnly lhcoEvents evstr
                                         parseAndPrint evstr
 
   putStrLn "-- Done parsing."

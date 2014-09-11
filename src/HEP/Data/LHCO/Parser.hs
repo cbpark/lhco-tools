@@ -1,10 +1,9 @@
-module HEP.Data.LHCO.Parser (rawLHCOEvent) where
+module HEP.Data.LHCO.Parser (rawLHCOEvent, lhcoEvent) where
 
 import           Control.Applicative              ((<*))
 import           Control.Monad                    (mzero)
 import           Data.Attoparsec.ByteString       (skipWhile)
 import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
-import           Data.IntMap                      (IntMap, fromList)
 
 import           HEP.Data.LHCO.Type
 
@@ -19,10 +18,10 @@ header = do skipSpace
             skipTillEnd
             return Header { numEve = nev, triggerWord = tw }
 
-object :: Parser (Int, RawObject)
+object :: Parser RawObject
 object = do skipSpace
             counter' <- decimal
-            if counter' == 0
+            if (counter' :: Int) == 0
               then mzero
               else do skipSpace
                       typ'   <- decimal
@@ -41,22 +40,25 @@ object = do skipSpace
                       skipSpace
                       hadem' <- double
                       skipTillEnd
-                      return (counter', RawObject { typ   = typ'
-                                                  , eta   = eta'
-                                                  , phi   = phi'
-                                                  , pt    = pt'
-                                                  , jmass = jmass'
-                                                  , ntrk  = ntrk'
-                                                  , btag  = btag'
-                                                  , hadem = hadem' })
+                      return RawObject { typ   = typ'
+                                       , eta   = eta'
+                                       , phi   = phi'
+                                       , pt    = pt'
+                                       , jmass = jmass'
+                                       , ntrk  = ntrk'
+                                       , btag  = btag'
+                                       , hadem = hadem' }
 
-type RawEvent = (Header, IntMap RawObject)
-
-rawLHCOEvent :: Parser RawEvent
+rawLHCOEvent :: Parser (Header, [RawObject])
 rawLHCOEvent = do comment
                   skipSpace
                   char '0'
                   hd <- header <* endOfLine
                   objs <- many1' $ object <* endOfLine
-                  return (hd, fromList objs)
+                  return (hd, objs)
   where comment = many' $ skipSpace >> char '#' >> skipTillEnd >> endOfLine
+
+lhcoEvent :: Parser Event
+lhcoEvent = do (hd, rawObjs) <- rawLHCOEvent
+               let phyObjs = map makeEachObj rawObjs
+               return $ makeEvent (numEve hd) phyObjs
