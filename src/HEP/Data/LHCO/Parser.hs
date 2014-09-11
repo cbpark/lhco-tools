@@ -4,7 +4,7 @@ import           Control.Applicative              ((<*))
 import           Control.Monad                    (mzero)
 import           Data.Attoparsec.ByteString       (skipWhile)
 import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
-import           Data.IntMap                      (fromList)
+import           Data.IntMap                      (IntMap, fromList)
 
 import           HEP.Data.LHCO.Type
 
@@ -19,7 +19,7 @@ header = do skipSpace
             skipTillEnd
             return Header { numEve = nev, triggerWord = tw }
 
-object :: Parser (Int, Object)
+object :: Parser (Int, RawObject)
 object = do skipSpace
             counter' <- decimal
             if counter' == 0
@@ -41,14 +41,16 @@ object = do skipSpace
                       skipSpace
                       hadem' <- double
                       skipTillEnd
-                      return (counter', Object { typ   = typ'
-                                               , eta   = eta'
-                                               , phi   = phi'
-                                               , pt    = pt'
-                                               , jmass = jmass'
-                                               , ntrk  = ntrk'
-                                               , btag  = btag'
-                                               , hadem = hadem' })
+                      return (counter', RawObject { typ   = typ'
+                                                  , eta   = eta'
+                                                  , phi   = phi'
+                                                  , pt    = pt'
+                                                  , jmass = jmass'
+                                                  , ntrk  = ntrk'
+                                                  , btag  = btag'
+                                                  , hadem = hadem' })
+
+type RawEvent = (Header, IntMap RawObject)
 
 lhcoEvent :: Parser RawEvent
 lhcoEvent = do comment
