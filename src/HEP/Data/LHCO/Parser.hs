@@ -9,6 +9,8 @@ import           Data.Attoparsec.ByteString       (skipWhile)
 import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
 import           Data.List                        (foldl', sortBy)
 
+import           HEP.Vector                       (HasFourMomentum (..))
+
 import           HEP.Data.LHCO.Type
 
 skipTillEnd :: Parser ()

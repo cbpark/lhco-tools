@@ -19,15 +19,10 @@ module HEP.Data.LHCO.Type
        , Track (..)
        , Charge (..)
        , TauProng (..)
-
-       , HasFourMomentum (..)
        ) where
 
-import           Data.Function            (on)
-
-import           HEP.Vector.LorentzVector (LorentzVector, setEtaPhiPtM)
-import qualified HEP.Vector.LorentzVector as LV
-import           HEP.Vector.TwoVector     (phi2MPiPi)
+import           HEP.Vector               (HasFourMomentum (..))
+import           HEP.Vector.LorentzVector (setEtaPhiPtM)
 
 data Header = Header { lhcoNumEve      :: !Int -- ^ event number.
                      , lhcoTriggerWord :: !Int -- ^ triggering information.
@@ -143,38 +138,6 @@ data Event = Event { neve      :: !Int
                    , bjets     :: ![PhyObj Bjet]
                    , met       :: !(PhyObj Met)
                    } deriving Show
-
-class HasFourMomentum a where
-  fourMomentum :: a -> LorentzVector Double
-  pt :: a -> Double
-  eta :: a -> Double
-  phi :: a -> Double
-
-  invMass :: [a] -> Double
-  invMass = LV.invariantMass . momentumSum
-
-  ptCompare :: a -> a -> Ordering
-  ptCompare = flip compare `on` pt
-
-  ptSum :: [a] -> Double
-  ptSum = foldr (\p acc -> pt p + acc) 0
-
-  momentumSum :: [a] -> LorentzVector Double
-  momentumSum = LV.vectorSum . map fourMomentum
-
-  deltaPhi :: a -> a -> Double
-  deltaPhi p p' = phi2MPiPi $ phi p - phi p'
-
-  deltaEta :: a -> a -> Double
-  deltaEta = (-) `on` eta
-
-  deltaR :: a -> a -> Double
-  deltaR p p' = sqrt $ deta * deta + dphi * dphi
-    where deta = deltaEta p p'
-          dphi = deltaPhi p p'
-
-  cosTheta :: a -> a -> Double
-  cosTheta p p' = cos $ (LV.deltaTheta `on` fourMomentum) p p'
 
 instance HasFourMomentum (PhyObj Photon) where
   fourMomentum (ObjPhoton (Track (e, ph, p))) = setEtaPhiPtM e ph p 0
