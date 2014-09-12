@@ -71,19 +71,19 @@ makeEachObj :: RawObject -> EachObj
 makeEachObj RawObject { .. } =
   let ntrkToCharge n = if n > 0 then CPlus else CMinus
       ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
-  in case typ of 0 -> EachObj ObjPhoton { photonTrack = (eta, phi, pt) }
-                 1 -> EachObj ObjElectron { electronTrack  = (eta, phi, pt)
+  in case typ of 0 -> EachObj ObjPhoton { photonTrack = Track (eta, phi, pt) }
+                 1 -> EachObj ObjElectron { electronTrack  = Track (eta, phi, pt)
                                           , electronCharge = ntrkToCharge ntrk }
-                 2 -> EachObj ObjMuon  { muonTrack  = (eta, phi, pt)
+                 2 -> EachObj ObjMuon  { muonTrack  = Track (eta, phi, pt)
                                        , muonCharge = ntrkToCharge ntrk }
-                 3 -> EachObj ObjTau { tauTrack  = (eta, phi, pt)
+                 3 -> EachObj ObjTau { tauTrack  = Track (eta, phi, pt)
                                      , tauCharge = ntrkToCharge ntrk
                                      , tauProng  = ntrkToProng ntrk }
                  4 -> if btag > 0
-                      then EachObj ObjBjet { bjetTrack    = (eta, phi, pt)
+                      then EachObj ObjBjet { bjetTrack    = Track (eta, phi, pt)
                                            , bjetMass     = jmass
                                            , bjetNumTrack = round ntrk }
-                      else EachObj ObjJet { jetTrack    = (eta, phi, pt)
+                      else EachObj ObjJet { jetTrack    = Track (eta, phi, pt)
                                           , jetMass     = jmass
                                           , jetNumTrack = round ntrk }
                  6 -> EachObj ObjMet { metTrack = (phi, pt) }
