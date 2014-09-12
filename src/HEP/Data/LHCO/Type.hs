@@ -152,11 +152,29 @@ data Event = Event { neve      :: Int
                    } deriving Show
 
 class Trackable a where
+  fourMomentum :: a -> LorentzVector Double
   ptMag :: a -> Double
-  ptCompare :: Trackable a => a -> a -> Ordering
+
+  ptCompare :: a -> a -> Ordering
   ptCompare = (flip compare) `on` ptMag
 
-  fourMomentum :: a -> LorentzVector Double
+  momentumSum :: [a]  -> LorentzVector Double
+  momentumSum = vectorSum . map fourMomentum
+
+  ptSum :: [a] -> Double
+  ptSum = foldr (\p acc -> ptMag p + acc) 0
+
+  invMass :: [a] -> Double
+  invMass = invariantMass . momentumSum
+
+  rapidity :: a -> Double
+  rapidity = HEP.Vector.LorentzVector.eta . fourMomentum
+
+  dR :: a -> a -> Double
+  dR = deltaR `on` fourMomentum
+
+  cosTheta :: a -> a -> Double
+  cosTheta p p' = cos $ (deltaTheta `on` fourMomentum) p p'
 
 instance Trackable (PhyObj Photon) where
   ptMag p = let (_, _, pt') = photonTrack p in pt'
