@@ -20,7 +20,7 @@ header = do skipSpace
             skipSpace
             tw  <- decimal
             skipTillEnd
-            return Header { numEve = nev, triggerWord = tw }
+            return Header { lhcoNumEve = nev, lhcoTriggerWord = tw }
 
 object :: Parser RawObject
 object = do skipSpace
@@ -44,14 +44,14 @@ object = do skipSpace
                       skipSpace
                       hadem' <- double
                       skipTillEnd
-                      return RawObject { typ   = typ'
-                                       , eta   = eta'
-                                       , phi   = phi'
-                                       , pt    = pt'
-                                       , jmass = jmass'
-                                       , ntrk  = ntrk'
-                                       , btag  = btag'
-                                       , hadem = hadem' }
+                      return RawObject { lhcoTyp   = typ'
+                                       , lhcoEta   = eta'
+                                       , lhcoPhi   = phi'
+                                       , lhcoPt    = pt'
+                                       , lhcoJmass = jmass'
+                                       , lhcoNtrk  = ntrk'
+                                       , lhcoBtag  = btag'
+                                       , lhcoHadem = hadem' }
 
 rawLHCOEvent :: Parser (Header, [RawObject])
 rawLHCOEvent = do comment
@@ -63,31 +63,32 @@ rawLHCOEvent = do comment
   where comment = many' $ skipSpace >> char '#' >> skipTillEnd >> endOfLine
 
 lhcoEvent :: Parser Event
-lhcoEvent = do (hd, rawObjs) <- rawLHCOEvent
+lhcoEvent = do (Header { .. }, rawObjs) <- rawLHCOEvent
                let phyObjs = map makeEachObj rawObjs
-               return $ (sortEvent . makeEvent (numEve hd)) phyObjs
+               return $ (sortEvent . makeEvent lhcoNumEve) phyObjs
 
 makeEachObj :: RawObject -> EachObj
 makeEachObj RawObject { .. } =
   let ntrkToCharge n = if n > 0 then CPlus else CMinus
       ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
-  in case typ of 0 -> EachObj ObjPhoton { photonTrack = Track (eta, phi, pt) }
-                 1 -> EachObj ObjElectron { electronTrack  = Track (eta, phi, pt)
-                                          , electronCharge = ntrkToCharge ntrk }
-                 2 -> EachObj ObjMuon  { muonTrack  = Track (eta, phi, pt)
-                                       , muonCharge = ntrkToCharge ntrk }
-                 3 -> EachObj ObjTau { tauTrack  = Track (eta, phi, pt)
-                                     , tauCharge = ntrkToCharge ntrk
-                                     , tauProng  = ntrkToProng ntrk }
-                 4 -> if btag > 0
-                      then EachObj ObjBjet { bjetTrack    = Track (eta, phi, pt)
-                                           , bjetMass     = jmass
-                                           , bjetNumTrack = round ntrk }
-                      else EachObj ObjJet { jetTrack    = Track (eta, phi, pt)
-                                          , jetMass     = jmass
-                                          , jetNumTrack = round ntrk }
-                 6 -> EachObj ObjMet { metTrack = (phi, pt) }
-                 _ -> EachObj ObjUnknown
+  in case lhcoTyp of
+      0 -> EachObj ObjPhoton { photonTrack = Track (lhcoEta, lhcoPhi, lhcoPt) }
+      1 -> EachObj ObjElectron { electronTrack  = Track (lhcoEta, lhcoPhi, lhcoPt)
+                               , electronCharge = ntrkToCharge lhcoNtrk }
+      2 -> EachObj ObjMuon  { muonTrack  = Track (lhcoEta, lhcoPhi, lhcoPt)
+                            , muonCharge = ntrkToCharge lhcoNtrk }
+      3 -> EachObj ObjTau { tauTrack  = Track (lhcoEta, lhcoPhi, lhcoPt)
+                          , tauCharge = ntrkToCharge lhcoNtrk
+                          , tauProng  = ntrkToProng lhcoNtrk }
+      4 -> if lhcoBtag > 0
+           then EachObj ObjBjet { bjetTrack    = Track (lhcoEta, lhcoPhi, lhcoPt)
+                                , bjetMass     = lhcoJmass
+                                , bjetNumTrack = round lhcoNtrk }
+           else EachObj ObjJet { jetTrack    = Track (lhcoEta, lhcoPhi, lhcoPt)
+                               , jetMass     = lhcoJmass
+                               , jetNumTrack = round lhcoNtrk }
+      6 -> EachObj ObjMet { metTrack = (lhcoPhi, lhcoPt) }
+      _ -> EachObj ObjUnknown
 
 makeEvent :: Int -> [EachObj] -> Event
 makeEvent n = foldl' addObj (Event n [] [] [] [] [] [] (ObjMet (0, 0)))

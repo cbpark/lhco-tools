@@ -25,10 +25,10 @@ module HEP.Data.LHCO.Type
 
 import           Data.Function            (on)
 
-import           HEP.Vector.LorentzVector
+import           HEP.Vector.LorentzVector as LV
 
-data Header = Header { numEve      :: !Int -- ^ event number.
-                     , triggerWord :: !Int -- ^ triggering information.
+data Header = Header { lhcoNumEve      :: !Int -- ^ event number.
+                     , lhcoTriggerWord :: !Int -- ^ triggering information.
                      } deriving Show
 
 data RawObject = RawObject { -- | type of object.
@@ -44,29 +44,26 @@ data RawObject = RawObject { -- | type of object.
                              --     * 4 = jet
                              --
                              --     * 6 = missing transverse energy
-                             typ   :: !Int
-                             -- | pseudorapidity.
-                           , eta   :: !Double
-                             -- | azimuthal angle.
-                           , phi   :: !Double
-                             -- | transverse momentum.
-                           , pt    :: !Double
+                             lhcoTyp   :: !Int
+                           , lhcoEta   :: !Double -- ^ pseudorapidity.
+                           , lhcoPhi   :: !Double -- ^ azimuthal angle.
+                           , lhcoPt    :: !Double -- ^ transverse momentum.
                              -- | invariant mass of the object.
                              --
                              -- For a jet, it is constructed from all energy and
                              -- momentum that are contained within it.
-                           , jmass :: !Double
+                           , lhcoJmass :: !Double
                              -- | number of tracks associated with the object.
                              --
                              -- In the case of a lepton, the number is multiplied
                              -- by the charge of the lepton.
-                           , ntrk  :: !Double
+                           , lhcoNtrk  :: !Double
                              -- | either 1 or 2 for a jet that has been tagged as
                              -- containing a b-quark.
-                           , btag  :: !Double
+                           , lhcoBtag  :: !Double
                              -- | ratio of the hadronic /vs/ electromagnetic
                              -- energy deposited in the calorimeter cells.
-                           , hadem :: !Double
+                           , lhcoHadem :: !Double
                            } deriving Show
 
 data Photon
@@ -162,22 +159,25 @@ class Trackable a where
   ptMag :: a -> Double
 
   ptCompare :: a -> a -> Ordering
-  ptCompare = (flip compare) `on` ptMag
+  ptCompare = flip compare `on` ptMag
 
-  momentumSum :: [a]  -> LorentzVector Double
+  momentumSum :: [a] -> LorentzVector Double
   momentumSum = vectorSum . map fourMomentum
 
   ptSum :: [a] -> Double
   ptSum = foldr (\p acc -> ptMag p + acc) 0
 
   invMass :: [a] -> Double
-  invMass = invariantMass . momentumSum
+  invMass = LV.invariantMass . momentumSum
 
   rapidity :: a -> Double
-  rapidity = HEP.Vector.LorentzVector.eta . fourMomentum
+  rapidity = LV.eta . fourMomentum
 
-  dR :: a -> a -> Double
-  dR = deltaR `on` fourMomentum
+  deltaR :: a -> a -> Double
+  deltaR = LV.deltaR `on` fourMomentum
+
+  deltaPhi :: a -> a -> Double
+  deltaPhi = LV.deltaPhi `on` fourMomentum
 
   cosTheta :: a -> a -> Double
   cosTheta p p' = cos $ (deltaTheta `on` fourMomentum) p p'
