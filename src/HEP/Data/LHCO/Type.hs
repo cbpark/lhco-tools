@@ -20,12 +20,14 @@ module HEP.Data.LHCO.Type
        , Charge (..)
        , TauProng (..)
 
-       , Trackable (..)
+       , HasFourMomentum (..)
        ) where
 
 import           Data.Function            (on)
 
-import           HEP.Vector.LorentzVector as LV
+import           HEP.Vector.LorentzVector (LorentzVector, setEtaPhiPtM)
+import qualified HEP.Vector.LorentzVector as LV
+import           HEP.Vector.TwoVector     (phi2MPiPi)
 
 data Header = Header { lhcoNumEve      :: !Int -- ^ event number.
                      , lhcoTriggerWord :: !Int -- ^ triggering information.
@@ -78,11 +80,13 @@ data Unknown
 type Eta = Double
 type Phi = Double
 type Pt = Double
+type Mass = Double
+type Ntrk = Int
 
-newtype Track = Track { getTrack :: (Eta, Phi, Pt) } deriving Eq
+newtype Track = Track (Eta, Phi, Pt) deriving Eq
 instance Show Track where
-  show t = let (a, b, c) = getTrack t
-           in "eta = " ++ show a ++ ", phi = " ++ show b ++ ", pt = " ++ show c
+  show (Track (e, ph, p)) =
+    "eta = " ++ show e ++ ", phi = " ++ show ph ++ ", pt = " ++ show p
 
 data Charge = CPlus | CMinus deriving Eq
 instance Show Charge where show q = case q of CPlus -> "1"
@@ -93,49 +97,36 @@ instance Show TauProng where show t = case t of OneProng -> "1"
                                                 _        -> "3"
 
 data PhyObj t where
-  ObjPhoton   :: { photonTrack :: !Track }     -> PhyObj Photon
-  ObjElectron :: { electronTrack  :: !Track
-                 , electronCharge :: !Charge } -> PhyObj Electron
-  ObjMuon     :: { muonTrack  :: !Track
-                 , muonCharge :: !Charge }     -> PhyObj Muon
-  ObjTau      :: { tauTrack  :: !Track
-                 , tauCharge :: !Charge
-                 , tauProng  :: !TauProng }    -> PhyObj Tau
-  ObjJet      :: { jetTrack    :: !Track
-                 , jetMass     :: !Double
-                 , jetNumTrack :: !Int }       -> PhyObj Jet
-  ObjBjet     :: { bjetTrack    :: !Track
-                 , bjetMass     :: !Double
-                 , bjetNumTrack :: !Int }      -> PhyObj Bjet
-  ObjMet      :: { metTrack :: !(Phi, Pt) }    -> PhyObj Met
-  ObjUnknown  ::                                  PhyObj Unknown
+  ObjPhoton   :: Track -> PhyObj Photon
+  ObjElectron :: Track -> Charge -> PhyObj Electron
+  ObjMuon     :: Track -> Charge -> PhyObj Muon
+  ObjTau      :: Track -> Charge -> TauProng -> PhyObj Tau
+  ObjJet      :: Track -> Mass -> Ntrk -> PhyObj Jet
+  ObjBjet     :: Track -> Mass -> Ntrk -> PhyObj Bjet
+  ObjMet      :: (Phi, Pt) -> PhyObj Met
+  ObjUnknown  :: PhyObj Unknown
 
 instance Show (PhyObj Photon) where
-  show p = "(" ++ show (photonTrack p) ++ ")"
+  show (ObjPhoton t) = "(" ++ show t ++ ")"
 
 instance Show (PhyObj Electron) where
-  show p = "(" ++ show (electronTrack p) ++
-           ", charge = " ++ show (electronCharge p) ++ ")"
+  show (ObjElectron t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
 
 instance Show (PhyObj Muon) where
-  show p = "(" ++ show (muonTrack p) ++
-           ", charge = " ++ show (muonCharge p) ++ ")"
+  show (ObjMuon t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
 
 instance Show (PhyObj Tau) where
-  show p = "(" ++ show (tauTrack p) ++
-           ", charge = " ++ show (tauCharge p) ++
-           ", prong = " ++ show (tauProng p) ++ ")"
+  show (ObjTau t c p) = "(" ++ show t ++ ", charge = " ++ show c ++
+                        ", prong = " ++ show p ++ ")"
 
 instance Show (PhyObj Jet) where
-  show p = "(" ++ show (jetTrack p) ++ ", " ++
-           showJetMassNtrk (jetMass p) (jetNumTrack p) ++ ")"
+  show (ObjJet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
 
 instance Show (PhyObj Bjet) where
-  show p = "(" ++ show (bjetTrack p) ++ ", " ++
-           showJetMassNtrk (bjetMass p) (bjetNumTrack p) ++ ")"
+  show (ObjBjet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
 
 instance Show (PhyObj Met) where
-  show p = let (x, y) = metTrack p
+  show p = let ObjMet (x, y) = p
            in "(phi = " ++ show x ++ ", pt = " ++ show y ++ ")"
 
 showJetMassNtrk :: Double -> Int -> String
@@ -154,60 +145,70 @@ data Event = Event { neve      :: !Int
                    , met       :: !(PhyObj Met)
                    } deriving Show
 
-class Trackable a where
+class HasFourMomentum a where
   fourMomentum :: a -> LorentzVector Double
-  ptMag :: a -> Double
-
-  ptCompare :: a -> a -> Ordering
-  ptCompare = flip compare `on` ptMag
-
-  momentumSum :: [a] -> LorentzVector Double
-  momentumSum = vectorSum . map fourMomentum
-
-  ptSum :: [a] -> Double
-  ptSum = foldr (\p acc -> ptMag p + acc) 0
+  pt :: a -> Double
+  eta :: a -> Double
+  phi :: a -> Double
 
   invMass :: [a] -> Double
   invMass = LV.invariantMass . momentumSum
 
-  rapidity :: a -> Double
-  rapidity = LV.eta . fourMomentum
+  ptCompare :: a -> a -> Ordering
+  ptCompare = flip compare `on` pt
 
-  deltaR :: a -> a -> Double
-  deltaR = LV.deltaR `on` fourMomentum
+  ptSum :: [a] -> Double
+  ptSum = foldr (\p acc -> pt p + acc) 0
+
+  momentumSum :: [a] -> LorentzVector Double
+  momentumSum = LV.vectorSum . map fourMomentum
 
   deltaPhi :: a -> a -> Double
-  deltaPhi = LV.deltaPhi `on` fourMomentum
+  deltaPhi p p' = phi2MPiPi $ phi p - phi p'
+
+  deltaEta :: a -> a -> Double
+  deltaEta = (-) `on` eta
+
+  deltaR :: a -> a -> Double
+  deltaR p p' = sqrt $ deta * deta + dphi * dphi
+    where deta = deltaEta p p'
+          dphi = deltaPhi p p'
 
   cosTheta :: a -> a -> Double
-  cosTheta p p' = cos $ (deltaTheta `on` fourMomentum) p p'
+  cosTheta p p' = cos $ (LV.deltaTheta `on` fourMomentum) p p'
 
-instance Trackable (PhyObj Photon) where
-  ptMag p = let (_, _, pt') = (getTrack . photonTrack) p in pt'
-  fourMomentum p = let (eta', phi', pt') = (getTrack . photonTrack) p
-                   in setEtaPhiPtM eta' phi' pt' 0
+instance HasFourMomentum (PhyObj Photon) where
+  fourMomentum (ObjPhoton (Track (e, ph, p))) = setEtaPhiPtM e ph p 0
+  pt (ObjPhoton (Track (_, _, p))) = p
+  eta (ObjPhoton (Track (e, _, _))) = e
+  phi (ObjPhoton (Track (_, ph, _))) = ph
 
-instance Trackable (PhyObj Electron) where
-  ptMag p = let (_, _, pt') = (getTrack . electronTrack) p in pt'
-  fourMomentum p = let (eta', phi', pt') = (getTrack . electronTrack) p
-                   in setEtaPhiPtM eta' phi' pt' 0
+instance HasFourMomentum (PhyObj Electron) where
+  fourMomentum (ObjElectron (Track (e, ph, p)) _) = setEtaPhiPtM e ph p 0
+  pt (ObjElectron (Track (_, _, p)) _) = p
+  eta (ObjElectron (Track (e, _, _)) _) = e
+  phi (ObjElectron (Track (_, ph, _)) _) = ph
 
-instance Trackable (PhyObj Muon) where
-  ptMag p = let (_, _, pt') = (getTrack . muonTrack) p in pt'
-  fourMomentum p = let (eta', phi', pt') = (getTrack . muonTrack) p
-                   in setEtaPhiPtM eta' phi' pt' 0
+instance HasFourMomentum (PhyObj Muon) where
+  fourMomentum (ObjMuon (Track (e, ph, p)) _) = setEtaPhiPtM e ph p 0
+  pt (ObjMuon (Track (_, _, p)) _) = p
+  eta (ObjMuon (Track (e, _, _)) _) = e
+  phi (ObjMuon (Track (_, ph, _)) _) = ph
 
-instance Trackable (PhyObj Tau) where
-  ptMag p = let (_, _, pt') = (getTrack . tauTrack) p in pt'
-  fourMomentum p = let (eta', phi', pt') = (getTrack . tauTrack) p
-                   in setEtaPhiPtM eta' phi' pt' 0
+instance HasFourMomentum (PhyObj Tau) where
+  fourMomentum (ObjTau (Track (e, ph, p)) _ _) = setEtaPhiPtM e ph p 0
+  pt (ObjTau (Track (_, _, p)) _ _) = p
+  eta (ObjTau (Track (e, _, _)) _ _) = e
+  phi (ObjTau (Track (_, ph, _)) _ _) = ph
 
-instance Trackable (PhyObj Jet) where
-  ptMag p = let (_, _, pt') = (getTrack . jetTrack) p in pt'
-  fourMomentum p = let (eta', phi', pt') = (getTrack . jetTrack) p
-                   in setEtaPhiPtM eta' phi' pt' (jetMass p)
+instance HasFourMomentum (PhyObj Jet) where
+  fourMomentum (ObjJet (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
+  pt (ObjJet (Track (_, _, p)) _ _) = p
+  eta (ObjJet (Track (e, _, _)) _ _) = e
+  phi (ObjJet (Track (_, ph, _)) _ _) = ph
 
-instance Trackable (PhyObj Bjet) where
-  ptMag p = let (_, _, pt') = (getTrack . bjetTrack) p in pt'
-  fourMomentum p = let (eta', phi', pt') = (getTrack . bjetTrack) p
-                   in setEtaPhiPtM eta' phi' pt' (bjetMass p)
+instance HasFourMomentum (PhyObj Bjet) where
+  fourMomentum (ObjBjet (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
+  pt (ObjBjet (Track (_, _, p)) _ _) = p
+  eta (ObjBjet (Track (e, _, _)) _ _) = e
+  phi (ObjBjet (Track (_, ph, _)) _ _) = ph

@@ -72,22 +72,20 @@ makeEachObj RawObject { .. } =
   let ntrkToCharge n = if n > 0 then CPlus else CMinus
       ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
   in case lhcoTyp of
-      0 -> EachObj ObjPhoton { photonTrack = Track (lhcoEta, lhcoPhi, lhcoPt) }
-      1 -> EachObj ObjElectron { electronTrack  = Track (lhcoEta, lhcoPhi, lhcoPt)
-                               , electronCharge = ntrkToCharge lhcoNtrk }
-      2 -> EachObj ObjMuon  { muonTrack  = Track (lhcoEta, lhcoPhi, lhcoPt)
-                            , muonCharge = ntrkToCharge lhcoNtrk }
-      3 -> EachObj ObjTau { tauTrack  = Track (lhcoEta, lhcoPhi, lhcoPt)
-                          , tauCharge = ntrkToCharge lhcoNtrk
-                          , tauProng  = ntrkToProng lhcoNtrk }
+      0 -> EachObj $ ObjPhoton (Track (lhcoEta, lhcoPhi, lhcoPt))
+      1 -> EachObj $ ObjElectron (Track (lhcoEta, lhcoPhi, lhcoPt))
+                                 (ntrkToCharge lhcoNtrk)
+      2 -> EachObj $ ObjMuon (Track (lhcoEta, lhcoPhi, lhcoPt))
+                             (ntrkToCharge lhcoNtrk)
+      3 -> EachObj $ ObjTau (Track (lhcoEta, lhcoPhi, lhcoPt))
+                            (ntrkToCharge lhcoNtrk)
+                            (ntrkToProng lhcoNtrk)
       4 -> if lhcoBtag > 0
-           then EachObj ObjBjet { bjetTrack    = Track (lhcoEta, lhcoPhi, lhcoPt)
-                                , bjetMass     = lhcoJmass
-                                , bjetNumTrack = round lhcoNtrk }
-           else EachObj ObjJet { jetTrack    = Track (lhcoEta, lhcoPhi, lhcoPt)
-                               , jetMass     = lhcoJmass
-                               , jetNumTrack = round lhcoNtrk }
-      6 -> EachObj ObjMet { metTrack = (lhcoPhi, lhcoPt) }
+           then EachObj $ ObjBjet (Track (lhcoEta, lhcoPhi, lhcoPt))
+                                  lhcoJmass (round lhcoNtrk)
+           else EachObj $ ObjJet (Track (lhcoEta, lhcoPhi, lhcoPt))
+                                 lhcoJmass (round lhcoNtrk)
+      6 -> EachObj $ ObjMet (lhcoPhi, lhcoPt)
       _ -> EachObj ObjUnknown
 
 makeEvent :: Int -> [EachObj] -> Event
@@ -109,5 +107,5 @@ sortEvent ev = ev { photons   = ptOrdering (photons ev)
                   , taus      = ptOrdering (taus ev)
                   , jets      = ptOrdering (jets ev)
                   , bjets     = ptOrdering (bjets ev) }
-  where ptOrdering :: Trackable a => [a] -> [a]
+  where ptOrdering :: HasFourMomentum a => [a] -> [a]
         ptOrdering = sortBy ptCompare
