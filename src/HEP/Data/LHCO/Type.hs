@@ -8,6 +8,7 @@ module HEP.Data.LHCO.Type
        , RawObject (..)
        , Event (..)
        , PhyObj (..)
+       , EachObj (..)
        , Photon
        , Electron
        , Muon
@@ -15,7 +16,6 @@ module HEP.Data.LHCO.Type
        , Jet
        , Bjet
        , Met
-       , EachObj (..)
        , Track (..)
        , Charge (..)
        , TauProng (..)
@@ -63,6 +63,16 @@ data RawObject = RawObject { -- | type of object.
                            , lhcoHadem :: !Double
                            } deriving Show
 
+data Event = Event { neve      :: !Int
+                   , photons   :: ![PhyObj Photon]
+                   , electrons :: ![PhyObj Electron]
+                   , muons     :: ![PhyObj Muon]
+                   , taus      :: ![PhyObj Tau]
+                   , jets      :: ![PhyObj Jet]
+                   , bjets     :: ![PhyObj Bjet]
+                   , met       :: !(PhyObj Met)
+                   } deriving Show
+
 data Photon
 data Electron
 data Muon
@@ -80,8 +90,8 @@ type Ntrk = Int
 
 newtype Track = Track (Eta, Phi, Pt) deriving Eq
 instance Show Track where
-  show (Track (e, ph, p)) =
-    "eta = " ++ show e ++ ", phi = " ++ show ph ++ ", pt = " ++ show p
+  show (Track (e, ph, p)) = "eta = " ++ show e ++ ", phi = " ++ show ph ++
+                            ", pt = " ++ show p
 
 data Charge = CPlus | CMinus deriving Eq
 instance Show Charge where show q = case q of CPlus -> "1"
@@ -90,6 +100,9 @@ instance Show Charge where show q = case q of CPlus -> "1"
 data TauProng = OneProng | ThreeProng deriving Eq
 instance Show TauProng where show t = case t of OneProng -> "1"
                                                 _        -> "3"
+
+data EachObj where
+  EachObj :: PhyObj t -> EachObj
 
 data PhyObj t where
   ObjPhoton   :: Track -> PhyObj Photon
@@ -100,44 +113,6 @@ data PhyObj t where
   ObjBjet     :: Track -> Mass -> Ntrk -> PhyObj Bjet
   ObjMet      :: (Phi, Pt) -> PhyObj Met
   ObjUnknown  :: PhyObj Unknown
-
-instance Show (PhyObj Photon) where
-  show (ObjPhoton t) = "(" ++ show t ++ ")"
-
-instance Show (PhyObj Electron) where
-  show (ObjElectron t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
-
-instance Show (PhyObj Muon) where
-  show (ObjMuon t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
-
-instance Show (PhyObj Tau) where
-  show (ObjTau t c p) = "(" ++ show t ++ ", charge = " ++ show c ++
-                        ", prong = " ++ show p ++ ")"
-
-instance Show (PhyObj Jet) where
-  show (ObjJet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
-
-instance Show (PhyObj Bjet) where
-  show (ObjBjet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
-
-instance Show (PhyObj Met) where
-  show (ObjMet (ph, p)) = "(phi = " ++ show ph ++ ", pt = " ++ show p ++ ")"
-
-showJetMassNtrk :: Double -> Int -> String
-showJetMassNtrk m n = "jmass = " ++ show m ++ ", ntrk = " ++ show n
-
-data EachObj where
-  EachObj :: PhyObj t -> EachObj
-
-data Event = Event { neve      :: !Int
-                   , photons   :: ![PhyObj Photon]
-                   , electrons :: ![PhyObj Electron]
-                   , muons     :: ![PhyObj Muon]
-                   , taus      :: ![PhyObj Tau]
-                   , jets      :: ![PhyObj Jet]
-                   , bjets     :: ![PhyObj Bjet]
-                   , met       :: !(PhyObj Met)
-                   } deriving Show
 
 instance HasFourMomentum (PhyObj Photon) where
   fourMomentum (ObjPhoton (Track (e, ph, p))) = setEtaPhiPtM e ph p 0
@@ -174,3 +149,28 @@ instance HasFourMomentum (PhyObj Bjet) where
   pt (ObjBjet (Track (_, _, p)) _ _) = p
   eta (ObjBjet (Track (e, _, _)) _ _) = e
   phi (ObjBjet (Track (_, ph, _)) _ _) = ph
+
+instance Show (PhyObj Photon) where
+  show (ObjPhoton t) = "(" ++ show t ++ ")"
+
+instance Show (PhyObj Electron) where
+  show (ObjElectron t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
+
+instance Show (PhyObj Muon) where
+  show (ObjMuon t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
+
+instance Show (PhyObj Tau) where
+  show (ObjTau t c p) = "(" ++ show t ++ ", charge = " ++ show c ++
+                        ", prong = " ++ show p ++ ")"
+
+instance Show (PhyObj Jet) where
+  show (ObjJet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
+
+instance Show (PhyObj Bjet) where
+  show (ObjBjet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
+
+instance Show (PhyObj Met) where
+  show (ObjMet (ph, p)) = "(phi = " ++ show ph ++ ", pt = " ++ show p ++ ")"
+
+showJetMassNtrk :: Double -> Int -> String
+showJetMassNtrk m n = "jmass = " ++ show m ++ ", ntrk = " ++ show n
