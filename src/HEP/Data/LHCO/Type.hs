@@ -6,11 +6,17 @@ module HEP.Data.LHCO.Type
        (
          Header (..)
        , RawObject (..)
+       , Event (..)
        , PhyObj (..)
+       , Photon
+       , Electron
+       , Muon
+       , Tau
+       , Jet
+       , Bjet
        , EachObj (..)
        , Charge (..)
        , TauProng (..)
-       , Event (..)
 
        , Trackable (..)
        ) where
@@ -19,8 +25,8 @@ import           Data.Function            (on)
 
 import           HEP.Vector.LorentzVector
 
-data Header = Header { numEve      :: Int -- ^ event number.
-                     , triggerWord :: Int -- ^ triggering information.
+data Header = Header { numEve      :: !Int -- ^ event number.
+                     , triggerWord :: !Int -- ^ triggering information.
                      } deriving Show
 
 data RawObject = RawObject { -- | type of object.
@@ -36,30 +42,30 @@ data RawObject = RawObject { -- | type of object.
                              --     * 4 = jet
                              --
                              --     * 6 = missing transverse energy
-                             typ   :: Int
+                             typ   :: !Int
                              -- | pseudorapidity.
-                           , eta   :: Double
+                           , eta   :: !Double
                              -- | azimuthal angle.
-                           , phi   :: Double
+                           , phi   :: !Double
                              -- | transverse momentum.
-                           , pt    :: Double
+                           , pt    :: !Double
                              -- | invariant mass of the object.
                              --
                              -- For a jet, it is constructed from all energy and
                              -- momentum that are contained within it.
-                           , jmass :: Double
+                           , jmass :: !Double
                              -- | number of tracks associated with the object.
                              --
                              -- In the case of a lepton, the number is multiplied
                              -- by the charge of the lepton.
-                           , ntrk  :: Double
+                           , ntrk  :: !Double
                              -- | either 1 or 2 for a jet that has been tagged as
                              -- containing a b-quark.
-                           , btag  :: Double
+                           , btag  :: !Double
                              -- | ratio of the hadronic /vs/ electromagnetic
                              -- energy deposited in the calorimeter cells.
-                           , hadem :: Double
-                           } deriving (Eq, Show)
+                           , hadem :: !Double
+                           } deriving Show
 
 data Photon
 data Electron
@@ -78,21 +84,21 @@ data Charge = CPlus | CMinus deriving Eq
 data TauProng = OneProng | ThreeProng deriving Eq
 
 data PhyObj t where
-  ObjPhoton   :: { photonTrack :: Track }     -> PhyObj Photon
-  ObjElectron :: { electronTrack  :: Track
-                 , electronCharge :: Charge } -> PhyObj Electron
-  ObjMuon     :: { muonTrack  :: Track
-                 , muonCharge :: Charge }     -> PhyObj Muon
-  ObjTau      :: { tauTrack  :: Track
-                 , tauCharge :: Charge
-                 , tauProng  :: TauProng }    -> PhyObj Tau
-  ObjJet      :: { jetTrack    :: Track
-                 , jetMass     :: Double
-                 , jetNumTrack :: Int }       -> PhyObj Jet
-  ObjBjet     :: { bjetTrack    :: Track
-                 , bjetMass     :: Double
-                 , bjetNumTrack :: Int }      -> PhyObj Bjet
-  ObjMet      :: { metTrack :: (Phi, Pt) }    -> PhyObj Met
+  ObjPhoton   :: { photonTrack :: !Track }     -> PhyObj Photon
+  ObjElectron :: { electronTrack  :: !Track
+                 , electronCharge :: !Charge } -> PhyObj Electron
+  ObjMuon     :: { muonTrack  :: !Track
+                 , muonCharge :: !Charge }     -> PhyObj Muon
+  ObjTau      :: { tauTrack  :: !Track
+                 , tauCharge :: !Charge
+                 , tauProng  :: !TauProng }    -> PhyObj Tau
+  ObjJet      :: { jetTrack    :: !Track
+                 , jetMass     :: !Double
+                 , jetNumTrack :: !Int }       -> PhyObj Jet
+  ObjBjet     :: { bjetTrack    :: !Track
+                 , bjetMass     :: !Double
+                 , bjetNumTrack :: !Int }      -> PhyObj Bjet
+  ObjMet      :: { metTrack :: !(Phi, Pt) }    -> PhyObj Met
   ObjUnknown  ::                                 PhyObj Unknown
 
 instance Show (PhyObj Photon) where
@@ -141,14 +147,14 @@ showJetMassNtrk m n = "jmass = " ++ show m ++ ", ntrk = " ++ show n
 data EachObj where
   EachObj :: PhyObj t -> EachObj
 
-data Event = Event { neve      :: Int
-                   , photons   :: [PhyObj Photon]
-                   , electrons :: [PhyObj Electron]
-                   , muons     :: [PhyObj Muon]
-                   , taus      :: [PhyObj Tau]
-                   , jets      :: [PhyObj Jet]
-                   , bjets     :: [PhyObj Bjet]
-                   , met       :: PhyObj Met
+data Event = Event { neve      :: !Int
+                   , photons   :: ![PhyObj Photon]
+                   , electrons :: ![PhyObj Electron]
+                   , muons     :: ![PhyObj Muon]
+                   , taus      :: ![PhyObj Tau]
+                   , jets      :: ![PhyObj Jet]
+                   , bjets     :: ![PhyObj Bjet]
+                   , met       :: !(PhyObj Met)
                    } deriving Show
 
 class Trackable a where

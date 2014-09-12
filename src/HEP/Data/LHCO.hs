@@ -20,25 +20,25 @@ import           Control.Monad.Trans.Reader (Reader, ask)
 import           HEP.Data.LHCO.Parser
 import           HEP.Data.LHCO.Type
 
-numObjs :: (Event -> [PhyObj a]) -> Reader Event Int
-numObjs f = liftM (length . f) ask
+numObjs :: (Event -> [PhyObj a]) -> (PhyObj a -> Bool) -> Reader Event Int
+numObjs self cutf = liftM (length . filter cutf . self) ask
 
-numPhoton :: Reader Event Int
+numPhoton :: (PhyObj Photon -> Bool) -> Reader Event Int
 numPhoton = numObjs photons
 
-numElectron :: Reader Event Int
+numElectron :: (PhyObj Electron -> Bool) -> Reader Event Int
 numElectron = numObjs electrons
 
-numMuon :: Reader Event Int
+numMuon :: (PhyObj Muon -> Bool) -> Reader Event Int
 numMuon = numObjs muons
 
-numTau :: Reader Event Int
+numTau :: (PhyObj Tau -> Bool) -> Reader Event Int
 numTau = numObjs taus
 
-numJet :: Reader Event Int
+numJet :: (PhyObj Jet -> Bool) -> Reader Event Int
 numJet = numObjs jets
 
-numBjet :: Reader Event Int
+numBjet :: (PhyObj Bjet -> Bool) -> Reader Event Int
 numBjet = numObjs bjets
 
 missingET :: Reader Event Double
