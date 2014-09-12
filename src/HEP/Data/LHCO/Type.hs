@@ -126,8 +126,7 @@ instance Show (PhyObj Bjet) where
   show (ObjBjet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
 
 instance Show (PhyObj Met) where
-  show p = let ObjMet (x, y) = p
-           in "(phi = " ++ show x ++ ", pt = " ++ show y ++ ")"
+  show (ObjMet (ph, p)) = "(phi = " ++ show ph ++ ", pt = " ++ show p ++ ")"
 
 showJetMassNtrk :: Double -> Int -> String
 showJetMassNtrk m n = "jmass = " ++ show m ++ ", ntrk = " ++ show n
