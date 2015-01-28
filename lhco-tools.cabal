@@ -1,12 +1,12 @@
 name:                lhco-tools
 version:             0.0.0.0
-synopsis:            Tools for the LHCO analyses using Haskell
+synopsis:            Tools for the LHC Olympics (LHCO) data analyses using Haskell
 description:         This package provides simple parsers and functions for manipulating files in the LHC Olympics Form (LHCO).
 homepage:            https://github.com/cbpark/lhco-tools
 license:             BSD3
 license-file:        LICENSE
 author:              Chan Beom Park
-maintainer:          chanbeom.park@cern.ch
+maintainer:          cbpark@gmail.com
 copyright:           (c) 2014 Chan Beom Park
 category:            Data, Physics
 build-type:          Simple
