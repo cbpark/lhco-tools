@@ -93,21 +93,21 @@ makeEachObj RawObject { .. } =
 makeEvent :: Int -> [EachObj] -> Event
 makeEvent n = foldl' addObj (Event n [] [] [] [] [] [] (ObjMet (0, 0)))
   where addObj :: Event -> EachObj -> Event
-        addObj ev (EachObj p@(ObjPhoton _))    = ev { photons   = p : photons ev }
-        addObj ev (EachObj p@(ObjElectron {})) = ev { electrons = p : electrons ev }
-        addObj ev (EachObj p@(ObjMuon {}))     = ev { muons     = p : muons ev }
-        addObj ev (EachObj p@(ObjTau {}))      = ev { taus      = p : taus ev }
-        addObj ev (EachObj p@(ObjJet {}))      = ev { jets      = p : jets ev }
-        addObj ev (EachObj p@(ObjBjet {}))     = ev { bjets     = p : bjets ev }
+        addObj ev (EachObj p@(ObjPhoton _))    = ev { photon   = p : photon ev }
+        addObj ev (EachObj p@(ObjElectron {})) = ev { electron = p : electron ev }
+        addObj ev (EachObj p@(ObjMuon {}))     = ev { muon     = p : muon ev }
+        addObj ev (EachObj p@(ObjTau {}))      = ev { tau      = p : tau ev }
+        addObj ev (EachObj p@(ObjJet {}))      = ev { jet      = p : jet ev }
+        addObj ev (EachObj p@(ObjBjet {}))     = ev { bjet     = p : bjet ev }
         addObj ev (EachObj p@(ObjMet {}))      = ev { met       = p }
         addObj ev (EachObj ObjUnknown)         = ev
 
 sortEvent :: Event -> Event
-sortEvent ev = ev { photons   = ptOrdering (photons ev)
-                  , electrons = ptOrdering (electrons ev)
-                  , muons     = ptOrdering (muons ev)
-                  , taus      = ptOrdering (taus ev)
-                  , jets      = ptOrdering (jets ev)
-                  , bjets     = ptOrdering (bjets ev) }
+sortEvent ev = ev { photon   = ptOrdering (photon ev)
+                  , electron = ptOrdering (electron ev)
+                  , muon     = ptOrdering (muon ev)
+                  , tau      = ptOrdering (tau ev)
+                  , jet      = ptOrdering (jet ev)
+                  , bjet     = ptOrdering (bjet ev) }
   where ptOrdering :: HasFourMomentum a => [a] -> [a]
         ptOrdering = sortBy ptCompare

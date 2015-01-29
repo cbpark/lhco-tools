@@ -27,22 +27,22 @@ numObjs :: (Event -> [PhyObj a]) -> (PhyObj a -> Bool) -> Reader Event Int
 numObjs self cutf = liftM (length . filter cutf . self) ask
 
 numPhoton :: (PhyObj Photon -> Bool) -> Reader Event Int
-numPhoton = numObjs photons
+numPhoton = numObjs photon
 
 numElectron :: (PhyObj Electron -> Bool) -> Reader Event Int
-numElectron = numObjs electrons
+numElectron = numObjs electron
 
 numMuon :: (PhyObj Muon -> Bool) -> Reader Event Int
-numMuon = numObjs muons
+numMuon = numObjs muon
 
 numTau :: (PhyObj Tau -> Bool) -> Reader Event Int
-numTau = numObjs taus
+numTau = numObjs tau
 
 numJet :: (PhyObj Jet -> Bool) -> Reader Event Int
-numJet = numObjs jets
+numJet = numObjs jet
 
 numBjet :: (PhyObj Bjet -> Bool) -> Reader Event Int
-numBjet = numObjs bjets
+numBjet = numObjs bjet
 
 missingET :: Reader Event Double
 missingET = do e <- ask

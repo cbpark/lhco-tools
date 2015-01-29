@@ -64,14 +64,14 @@ data RawObject = RawObject { -- | type of object.
                            , lhcoHadem :: !Double
                            } deriving Show
 
-data Event = Event { neve      :: !Int
-                   , photons   :: ![PhyObj Photon]
-                   , electrons :: ![PhyObj Electron]
-                   , muons     :: ![PhyObj Muon]
-                   , taus      :: ![PhyObj Tau]
-                   , jets      :: ![PhyObj Jet]
-                   , bjets     :: ![PhyObj Bjet]
-                   , met       :: !(PhyObj Met)
+data Event = Event { neve     :: !Int
+                   , photon   :: ![PhyObj Photon]
+                   , electron :: ![PhyObj Electron]
+                   , muon     :: ![PhyObj Muon]
+                   , tau      :: ![PhyObj Tau]
+                   , jet      :: ![PhyObj Jet]
+                   , bjet     :: ![PhyObj Bjet]
+                   , met      :: !(PhyObj Met)
                    } deriving Show
 
 data Photon
