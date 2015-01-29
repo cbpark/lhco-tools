@@ -19,6 +19,7 @@ module HEP.Data.LHCO.Type
        , Track (..)
        , Charge (..)
        , TauProng (..)
+       , BTag (..)
        ) where
 
 import           HEP.Vector               (HasFourMomentum (..))
@@ -101,6 +102,10 @@ data TauProng = OneProng | ThreeProng deriving Eq
 instance Show TauProng where show t = case t of OneProng -> "1"
                                                 _        -> "3"
 
+data BTag = Loose | Tight deriving Eq
+instance Show BTag where show b = case b of Loose -> "1"
+                                            _     -> "2"
+
 data EachObj where
   EachObj :: PhyObj t -> EachObj
 
@@ -110,7 +115,7 @@ data PhyObj t where
   ObjMuon     :: Track -> Charge -> PhyObj Muon
   ObjTau      :: Track -> Charge -> TauProng -> PhyObj Tau
   ObjJet      :: Track -> Mass -> Ntrk -> PhyObj Jet
-  ObjBjet     :: Track -> Mass -> Ntrk -> PhyObj Bjet
+  ObjBjet     :: Track -> Mass -> Ntrk -> BTag -> PhyObj Bjet
   ObjMet      :: (Phi, Pt) -> PhyObj Met
   ObjUnknown  :: PhyObj Unknown
 
@@ -145,10 +150,10 @@ instance HasFourMomentum (PhyObj Jet) where
   phi (ObjJet (Track (_, ph, _)) _ _) = ph
 
 instance HasFourMomentum (PhyObj Bjet) where
-  fourMomentum (ObjBjet (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
-  pt (ObjBjet (Track (_, _, p)) _ _) = p
-  eta (ObjBjet (Track (e, _, _)) _ _) = e
-  phi (ObjBjet (Track (_, ph, _)) _ _) = ph
+  fourMomentum (ObjBjet (Track (e, ph, p)) m _ _) = setEtaPhiPtM e ph p m
+  pt (ObjBjet (Track (_, _, p)) _ _ _) = p
+  eta (ObjBjet (Track (e, _, _)) _ _ _) = e
+  phi (ObjBjet (Track (_, ph, _)) _ _ _) = ph
 
 instance Show (PhyObj Photon) where
   show (ObjPhoton t) = "(" ++ show t ++ ")"
@@ -167,7 +172,8 @@ instance Show (PhyObj Jet) where
   show (ObjJet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
 
 instance Show (PhyObj Bjet) where
-  show (ObjBjet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"
+  show (ObjBjet t m n b) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++
+                           ", btag = " ++ show b ++ ")"
 
 instance Show (PhyObj Met) where
   show (ObjMet (ph, p)) = "(phi = " ++ show ph ++ ", pt = " ++ show p ++ ")"

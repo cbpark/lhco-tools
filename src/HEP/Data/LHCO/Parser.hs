@@ -71,20 +71,20 @@ lhcoEvent = do (Header { .. }, rawObjs) <- rawLHCOEvent
 
 makeEachObj :: RawObject -> EachObj
 makeEachObj RawObject { .. } =
-  let ntrkToCharge n = if n > 0 then CPlus else CMinus
-      ntrkToProng n = if abs n < 1.1 then OneProng else ThreeProng
+  let toCharge n = if n > 0 then CPlus else CMinus
+      toProng n = if abs n < 1.1 then OneProng else ThreeProng
+      toBTag n = if n < 1.5 then Loose else Tight
   in case lhcoTyp of
       0 -> EachObj $ ObjPhoton (Track (lhcoEta, lhcoPhi, lhcoPt))
       1 -> EachObj $ ObjElectron (Track (lhcoEta, lhcoPhi, lhcoPt))
-                                 (ntrkToCharge lhcoNtrk)
+                                 (toCharge lhcoNtrk)
       2 -> EachObj $ ObjMuon (Track (lhcoEta, lhcoPhi, lhcoPt))
-                             (ntrkToCharge lhcoNtrk)
+                             (toCharge lhcoNtrk)
       3 -> EachObj $ ObjTau (Track (lhcoEta, lhcoPhi, lhcoPt))
-                            (ntrkToCharge lhcoNtrk)
-                            (ntrkToProng lhcoNtrk)
-      4 -> if lhcoBtag > 0
+                            (toCharge lhcoNtrk) (toProng lhcoNtrk)
+      4 -> if lhcoBtag > 0.5
            then EachObj $ ObjBjet (Track (lhcoEta, lhcoPhi, lhcoPt))
-                                  lhcoJmass (round lhcoNtrk)
+                                  lhcoJmass (round lhcoNtrk) (toBTag lhcoBtag)
            else EachObj $ ObjJet (Track (lhcoEta, lhcoPhi, lhcoPt))
                                  lhcoJmass (round lhcoNtrk)
       6 -> EachObj $ ObjMet (lhcoPhi, lhcoPt)
