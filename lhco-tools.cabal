@@ -12,13 +12,21 @@ category:            Data, Physics
 build-type:          Simple
 cabal-version:       >=1.10
 
+source-repository head
+  type:                git
+  location:            git@github.com:cbpark/lhco-tools.git
+
+flag devel
+  description:         Create small test executables
+  default:             False
+
 library
   exposed-modules:     HEP.Data.LHCO
                        HEP.Data.LHCO.Parser
                        HEP.Data.LHCO.Type
   build-depends:       base >=4.6
                      , attoparsec >=0.10
-                     , transformers >=0.3 && <0.5
+                     , transformers >=0.3
                      , hep-vector >=0.1
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -33,6 +41,10 @@ executable lhco_parse_test
   hs-source-dirs:      test
   default-language:    Haskell2010
   ghc-options:         -Wall -O2 -threaded -funbox-strict-fields
+  if flag(devel)
+    buildable:         True
+  else
+    buildable:         False
 
 executable lhco_conduitparse_test
   main-is:             conduitparse.hs
@@ -40,11 +52,15 @@ executable lhco_conduitparse_test
                      , conduit >=1.2
                      , conduit-extra >=1.1
                      , resourcet >=1.1
-                     , transformers >=0.3 && <0.5
+                     , transformers >=0.3
                      , lhco-tools
   hs-source-dirs:      test
   default-language:    Haskell2010
   ghc-options:         -Wall -O2 -threaded -funbox-strict-fields
+  if flag(devel)
+    buildable:         True
+  else
+    buildable:         False
 
 executable lhco_pipesparse_test
   main-is:             pipesparse.hs
@@ -53,8 +69,12 @@ executable lhco_pipesparse_test
                      , pipes >=4.1
                      , pipes-attoparsec >=0.5
                      , pipes-bytestring >=2.1
-                     , transformers >=0.3 && <0.5
+                     , transformers >=0.3
                      , lhco-tools
   hs-source-dirs:      test
   default-language:    Haskell2010
   ghc-options:         -Wall -O2 -threaded -funbox-strict-fields
+  if flag(devel)
+    buildable:         True
+  else
+    buildable:         False
