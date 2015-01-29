@@ -112,8 +112,8 @@ data EachObj where
 data PhyObj t where
   ObjPhoton   :: Track -> PhyObj Photon
   ObjElectron :: Track -> Charge -> PhyObj Electron
-  ObjMuon     :: Track -> Charge -> PhyObj Muon
-  ObjTau      :: Track -> Charge -> TauProng -> PhyObj Tau
+  ObjMuon     :: Track -> Mass -> Charge -> PhyObj Muon
+  ObjTau      :: Track -> Mass -> Charge -> TauProng -> PhyObj Tau
   ObjJet      :: Track -> Mass -> Ntrk -> PhyObj Jet
   ObjBjet     :: Track -> Mass -> Ntrk -> BTag -> PhyObj Bjet
   ObjMet      :: (Phi, Pt) -> PhyObj Met
@@ -132,16 +132,16 @@ instance HasFourMomentum (PhyObj Electron) where
   phi (ObjElectron (Track (_, ph, _)) _) = ph
 
 instance HasFourMomentum (PhyObj Muon) where
-  fourMomentum (ObjMuon (Track (e, ph, p)) _) = setEtaPhiPtM e ph p 0
-  pt (ObjMuon (Track (_, _, p)) _) = p
-  eta (ObjMuon (Track (e, _, _)) _) = e
-  phi (ObjMuon (Track (_, ph, _)) _) = ph
+  fourMomentum (ObjMuon (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
+  pt (ObjMuon (Track (_, _, p)) _ _) = p
+  eta (ObjMuon (Track (e, _, _)) _ _) = e
+  phi (ObjMuon (Track (_, ph, _)) _ _) = ph
 
 instance HasFourMomentum (PhyObj Tau) where
-  fourMomentum (ObjTau (Track (e, ph, p)) _ _) = setEtaPhiPtM e ph p 0
-  pt (ObjTau (Track (_, _, p)) _ _) = p
-  eta (ObjTau (Track (e, _, _)) _ _) = e
-  phi (ObjTau (Track (_, ph, _)) _ _) = ph
+  fourMomentum (ObjTau (Track (e, ph, p)) m _ _) = setEtaPhiPtM e ph p m
+  pt (ObjTau (Track (_, _, p)) _ _ _) = p
+  eta (ObjTau (Track (e, _, _)) _ _ _) = e
+  phi (ObjTau (Track (_, ph, _)) _ _ _) = ph
 
 instance HasFourMomentum (PhyObj Jet) where
   fourMomentum (ObjJet (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
@@ -162,11 +162,13 @@ instance Show (PhyObj Electron) where
   show (ObjElectron t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
 
 instance Show (PhyObj Muon) where
-  show (ObjMuon t c) = "(" ++ show t ++ ", charge = " ++ show c ++ ")"
+  show (ObjMuon t m c) = "(" ++ show t ++ ", jmass = " ++ show m ++
+                         ", charge = " ++ show c ++ ")"
 
 instance Show (PhyObj Tau) where
-  show (ObjTau t c p) = "(" ++ show t ++ ", charge = " ++ show c ++
-                        ", prong = " ++ show p ++ ")"
+  show (ObjTau t m c p) = "(" ++ show t ++ ", jmass = " ++ show m ++
+                          ", charge = " ++ show c ++
+                          ", prong = " ++ show p ++ ")"
 
 instance Show (PhyObj Jet) where
   show (ObjJet t m n) = "(" ++ show t ++ ", " ++ showJetMassNtrk m n ++ ")"

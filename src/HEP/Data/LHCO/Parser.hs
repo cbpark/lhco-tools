@@ -78,9 +78,9 @@ makeEachObj RawObject { .. } =
       0 -> EachObj $ ObjPhoton (Track (lhcoEta, lhcoPhi, lhcoPt))
       1 -> EachObj $ ObjElectron (Track (lhcoEta, lhcoPhi, lhcoPt))
                                  (toCharge lhcoNtrk)
-      2 -> EachObj $ ObjMuon (Track (lhcoEta, lhcoPhi, lhcoPt))
+      2 -> EachObj $ ObjMuon (Track (lhcoEta, lhcoPhi, lhcoPt)) lhcoJmass
                              (toCharge lhcoNtrk)
-      3 -> EachObj $ ObjTau (Track (lhcoEta, lhcoPhi, lhcoPt))
+      3 -> EachObj $ ObjTau (Track (lhcoEta, lhcoPhi, lhcoPt)) lhcoJmass
                             (toCharge lhcoNtrk) (toProng lhcoNtrk)
       4 -> if lhcoBtag > 0.5
            then EachObj $ ObjBjet (Track (lhcoEta, lhcoPhi, lhcoPt))
