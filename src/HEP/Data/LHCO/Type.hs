@@ -22,8 +22,8 @@ module HEP.Data.LHCO.Type
        , BTag (..)
        ) where
 
-import           HEP.Vector               (HasFourMomentum (..))
-import           HEP.Vector.LorentzVector (setEtaPhiPtM)
+import           HEP.Kinematics                      (HasFourMomentum (..))
+import           HEP.Kinematics.Vector.LorentzVector (setEtaPhiPtM)
 
 data Header = Header { lhcoNumEve      :: !Int -- ^ event number.
                      , lhcoTriggerWord :: !Int -- ^ triggering information.

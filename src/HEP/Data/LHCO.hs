@@ -4,7 +4,7 @@ module HEP.Data.LHCO
        (
          module HEP.Data.LHCO.Type
        , module HEP.Data.LHCO.Parser
-       , module HV
+       , module HK
 
        , numPhoton
        , numElectron
@@ -18,7 +18,7 @@ module HEP.Data.LHCO
 import           Control.Monad              (liftM)
 import           Control.Monad.Trans.Reader (Reader, ask)
 
-import           HEP.Vector                 as HV (HasFourMomentum (..))
+import           HEP.Kinematics             as HK (HasFourMomentum (..))
 
 import           HEP.Data.LHCO.Parser
 import           HEP.Data.LHCO.Type
