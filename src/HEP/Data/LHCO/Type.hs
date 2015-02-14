@@ -124,36 +124,42 @@ instance HasFourMomentum (PhyObj Photon) where
   pt (ObjPhoton (Track (_, _, p))) = p
   eta (ObjPhoton (Track (e, _, _))) = e
   phi (ObjPhoton (Track (_, ph, _))) = ph
+  mass _ = 0
 
 instance HasFourMomentum (PhyObj Electron) where
   fourMomentum (ObjElectron (Track (e, ph, p)) _) = setEtaPhiPtM e ph p 0
   pt (ObjElectron (Track (_, _, p)) _) = p
   eta (ObjElectron (Track (e, _, _)) _) = e
   phi (ObjElectron (Track (_, ph, _)) _) = ph
+  mass _ = 0
 
 instance HasFourMomentum (PhyObj Muon) where
   fourMomentum (ObjMuon (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
   pt (ObjMuon (Track (_, _, p)) _ _) = p
   eta (ObjMuon (Track (e, _, _)) _ _) = e
   phi (ObjMuon (Track (_, ph, _)) _ _) = ph
+  mass (ObjMuon (Track (_, _, _)) m _) = m
 
 instance HasFourMomentum (PhyObj Tau) where
   fourMomentum (ObjTau (Track (e, ph, p)) m _ _) = setEtaPhiPtM e ph p m
   pt (ObjTau (Track (_, _, p)) _ _ _) = p
   eta (ObjTau (Track (e, _, _)) _ _ _) = e
   phi (ObjTau (Track (_, ph, _)) _ _ _) = ph
+  mass (ObjTau (Track (_, _, _)) m _ _) = m
 
 instance HasFourMomentum (PhyObj Jet) where
   fourMomentum (ObjJet (Track (e, ph, p)) m _) = setEtaPhiPtM e ph p m
   pt (ObjJet (Track (_, _, p)) _ _) = p
   eta (ObjJet (Track (e, _, _)) _ _) = e
   phi (ObjJet (Track (_, ph, _)) _ _) = ph
+  mass (ObjJet (Track (_, _, _)) m _) = m
 
 instance HasFourMomentum (PhyObj Bjet) where
   fourMomentum (ObjBjet (Track (e, ph, p)) m _ _) = setEtaPhiPtM e ph p m
   pt (ObjBjet (Track (_, _, p)) _ _ _) = p
   eta (ObjBjet (Track (e, _, _)) _ _ _) = e
   phi (ObjBjet (Track (_, ph, _)) _ _ _) = ph
+  mass (ObjBjet (Track (_, _, _)) m _ _) = m
 
 instance Show (PhyObj Photon) where
   show (ObjPhoton t) = "(" ++ show t ++ ")"
