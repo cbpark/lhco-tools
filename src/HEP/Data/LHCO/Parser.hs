@@ -3,7 +3,6 @@
 
 module HEP.Data.LHCO.Parser (rawLHCOEvent, lhcoEvent) where
 
-import           Control.Applicative              ((<*))
 import           Control.Monad                    (mzero)
 import           Data.Attoparsec.ByteString       (skipWhile)
 import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
