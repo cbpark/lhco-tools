@@ -26,6 +26,9 @@ library
                        HEP.Data.LHCO.Type
   build-depends:       base >=4.6
                      , attoparsec >=0.10
+                     , bytestring >=0.10
+                     , pipes >=4.1
+                     , pipes-attoparsec >=0.5
                      , transformers >=0.3
                      , hep-kinematics >=0.1
   hs-source-dirs:      src
