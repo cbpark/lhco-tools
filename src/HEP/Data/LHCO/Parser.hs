@@ -20,8 +20,7 @@ skipTillEnd = skipWhile (not . isEndOfLine)
 
 header :: Parser Header
 header = do skipSpace
-            nev <- decimal
-            skipSpace
+            nev <- decimal <* skipSpace
             tw  <- decimal
             skipTillEnd
             return Header { lhcoNumEve = nev, lhcoTriggerWord = tw }
@@ -32,20 +31,13 @@ object = do skipSpace
             if (counter' :: Int) == 0
               then mzero
               else do skipSpace
-                      typ'   <- decimal
-                      skipSpace
-                      eta'   <- double
-                      skipSpace
-                      phi'   <- double
-                      skipSpace
-                      pt'    <- double
-                      skipSpace
-                      jmass' <- double
-                      skipSpace
-                      ntrk'  <- double
-                      skipSpace
-                      btag'  <- double
-                      skipSpace
+                      typ'   <- decimal <* skipSpace
+                      eta'   <- double  <* skipSpace
+                      phi'   <- double  <* skipSpace
+                      pt'    <- double  <* skipSpace
+                      jmass' <- double  <* skipSpace
+                      ntrk'  <- double  <* skipSpace
+                      btag'  <- double  <* skipSpace
                       hadem' <- double
                       skipTillEnd
                       return RawObject { lhcoTyp   = typ'
@@ -114,7 +106,7 @@ sortEvent ev = ev { photon   = ptOrdering (photon ev)
   where ptOrdering :: HasFourMomentum a => [a] -> [a]
         ptOrdering = sortBy ptCompare
 
-getLHCOEvent :: MonadIO m => Producer ByteString m () -> Producer Event m ()
+getLHCOEvent :: Monad m => Producer ByteString m () -> Producer Event m ()
 getLHCOEvent s = do (r, s') <- lift $ runStateT (PA.parse lhcoEvent) s
                     case r of Just (Right ev) -> yield ev >> getLHCOEvent s'
                               _               -> return ()
