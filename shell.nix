@@ -1,7 +1,7 @@
 with (import <nixpkgs> {}).pkgs;
 let pkg = haskellngPackages.callPackage
             ({ mkDerivation, attoparsec, base, bytestring, conduit
-             , conduit-extra, hep-kinematics, pipes, pipes-attoparsec
+             , conduit-extra, hep-utilities, pipes, pipes-attoparsec
              , pipes-bytestring, resourcet, stdenv, transformers
              }:
              mkDerivation {
@@ -11,7 +11,7 @@ let pkg = haskellngPackages.callPackage
                isLibrary = true;
                isExecutable = true;
                buildDepends = [
-                 attoparsec base bytestring conduit conduit-extra hep-kinematics
+                 attoparsec base bytestring conduit conduit-extra hep-utilities
                  pipes pipes-attoparsec pipes-bytestring resourcet transformers
                ];
                homepage = "https://github.com/cbpark/lhco-tools";
