@@ -25,8 +25,8 @@ module HEP.Data.LHCO.Type
 import           HEP.Kinematics                      (HasFourMomentum (..))
 import           HEP.Kinematics.Vector.LorentzVector (setEtaPhiPtM)
 
-data Header = Header { lhcoNumEve      :: !Int -- ^ event number.
-                     , lhcoTriggerWord :: !Int -- ^ triggering information.
+data Header = Header { lhcoNumEve      :: Int -- ^ event number.
+                     , lhcoTriggerWord :: Int -- ^ triggering information.
                      } deriving Show
 
 data RawObject = RawObject { -- | type of object.
@@ -42,36 +42,36 @@ data RawObject = RawObject { -- | type of object.
                              --     * 4 = jet
                              --
                              --     * 6 = missing transverse energy
-                             lhcoTyp   :: !Int
-                           , lhcoEta   :: !Double -- ^ pseudorapidity.
-                           , lhcoPhi   :: !Double -- ^ azimuthal angle.
-                           , lhcoPt    :: !Double -- ^ transverse momentum.
+                             lhcoTyp   :: Int
+                           , lhcoEta   :: Double -- ^ pseudorapidity.
+                           , lhcoPhi   :: Double -- ^ azimuthal angle.
+                           , lhcoPt    :: Double -- ^ transverse momentum.
                              -- | invariant mass of the object.
                              --
                              -- For a jet, it is constructed from all energy and
                              -- momentum that are contained within it.
-                           , lhcoJmass :: !Double
+                           , lhcoJmass :: Double
                              -- | number of tracks associated with the object.
                              --
                              -- In the case of a lepton, the number is multiplied
                              -- by the charge of the lepton.
-                           , lhcoNtrk  :: !Double
+                           , lhcoNtrk  :: Double
                              -- | either 1 or 2 for a jet that has been tagged as
                              -- containing a b-quark.
-                           , lhcoBtag  :: !Double
+                           , lhcoBtag  :: Double
                              -- | ratio of the hadronic /vs/ electromagnetic
                              -- energy deposited in the calorimeter cells.
-                           , lhcoHadem :: !Double
+                           , lhcoHadem :: Double
                            } deriving Show
 
-data Event = Event { neve     :: !Int
-                   , photon   :: ![PhyObj Photon]
-                   , electron :: ![PhyObj Electron]
-                   , muon     :: ![PhyObj Muon]
-                   , tau      :: ![PhyObj Tau]
-                   , jet      :: ![PhyObj Jet]
-                   , bjet     :: ![PhyObj Bjet]
-                   , met      :: !(PhyObj Met)
+data Event = Event { nev      :: Int
+                   , photon   :: [PhyObj Photon]
+                   , electron :: [PhyObj Electron]
+                   , muon     :: [PhyObj Muon]
+                   , tau      :: [PhyObj Tau]
+                   , jet      :: [PhyObj Jet]
+                   , bjet     :: [PhyObj Bjet]
+                   , met      :: PhyObj Met
                    } deriving Show
 
 data Photon

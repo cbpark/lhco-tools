@@ -93,7 +93,7 @@ makeEvent n = foldl' addObj (Event n [] [] [] [] [] [] (ObjMet (0, 0)))
         addObj ev (EachObj p@(ObjTau {}))      = ev { tau      = p : tau ev }
         addObj ev (EachObj p@(ObjJet {}))      = ev { jet      = p : jet ev }
         addObj ev (EachObj p@(ObjBjet {}))     = ev { bjet     = p : bjet ev }
-        addObj ev (EachObj p@(ObjMet {}))      = ev { met       = p }
+        addObj ev (EachObj p@(ObjMet {}))      = ev { met      = p }
         addObj ev (EachObj ObjUnknown)         = ev
 
 sortEvent :: Event -> Event
