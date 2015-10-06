@@ -9,3 +9,4 @@ cabal.sandbox.config
 TAGS
 *.lhco
 *.log
+.stack-work

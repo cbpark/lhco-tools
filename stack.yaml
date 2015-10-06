@@ -1,0 +1,8 @@
+flags:
+  lhco-tools:
+    devel: false
+packages:
+- '.'
+- ../hep-utilities
+extra-deps: []
+resolver: lts-3.8
