@@ -19,7 +19,7 @@ module HEP.Data.LHCO
 import           Control.Monad              (liftM)
 import           Control.Monad.Trans.Reader (Reader, ask)
 
-import           HEP.Kinematics             as HK (HasFourMomentum (..))
+import           HEP.Kinematics             as HK
 
 import           HEP.Data.LHCO.Parser       as LP
 import           HEP.Data.LHCO.PipesUtil    as LPU
