@@ -23,6 +23,7 @@ flag devel
 library
   exposed-modules:     HEP.Data.LHCO
                        HEP.Data.LHCO.Parser
+                       HEP.Data.LHCO.PipesUtil
                        HEP.Data.LHCO.Type
   build-depends:       base >=4.6
                      , attoparsec >=0.10

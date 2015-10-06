@@ -1,15 +1,12 @@
 {-# LANGUAGE GADTs           #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module HEP.Data.LHCO.Parser (rawLHCOEvent, lhcoEvent, getLHCOEvent) where
+module HEP.Data.LHCO.Parser (rawLHCOEvent, lhcoEvent) where
 
-import           Control.Monad.Trans.State.Strict
+import           Control.Monad                    (mzero)
 import           Data.Attoparsec.ByteString       (skipWhile)
 import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
-import           Data.ByteString.Char8            (ByteString)
 import           Data.List                        (foldl', sortBy)
-import           Pipes
-import qualified Pipes.Attoparsec                 as PA
 
 import           HEP.Kinematics                   (HasFourMomentum, ptCompare)
 
@@ -105,8 +102,3 @@ sortEvent ev = ev { photon   = ptOrdering (photon ev)
                   , bjet     = ptOrdering (bjet ev) }
   where ptOrdering :: HasFourMomentum a => [a] -> [a]
         ptOrdering = sortBy ptCompare
-
-getLHCOEvent :: Monad m => Producer ByteString m () -> Producer Event m ()
-getLHCOEvent s = do (r, s') <- lift $ runStateT (PA.parse lhcoEvent) s
-                    case r of Just (Right ev) -> yield ev >> getLHCOEvent s'
-                              _               -> return ()

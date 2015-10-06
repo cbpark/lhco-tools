@@ -2,8 +2,9 @@
 
 module HEP.Data.LHCO
        (
-         module HEP.Data.LHCO.Type
-       , module HEP.Data.LHCO.Parser
+         module LT
+       , module LP
+       , module LPU
        , module HK
 
        , numPhoton
@@ -20,8 +21,9 @@ import           Control.Monad.Trans.Reader (Reader, ask)
 
 import           HEP.Kinematics             as HK (HasFourMomentum (..))
 
-import           HEP.Data.LHCO.Parser
-import           HEP.Data.LHCO.Type
+import           HEP.Data.LHCO.Parser       as LP
+import           HEP.Data.LHCO.PipesUtil    as LPU
+import           HEP.Data.LHCO.Type         as LT
 
 numObjs :: (Event -> [PhyObj a]) -> (PhyObj a -> Bool) -> Reader Event Int
 numObjs self cutf = liftM (length . filter cutf . self) ask
